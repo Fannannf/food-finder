@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.foodfinder.app.food_finder"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"// flutter.ndkVersion
+    ndkVersion = "27.0.12077973" // flutter.ndkVersion // 
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
