@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:food_finder/helpers/api_driver.dart';
+import 'package:food_finder/helpers/token_storage.dart';
 import 'package:food_finder/pages/register_page.dart';
+
+import '../components/widgets.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -7,8 +11,34 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  void _login() {
-    toDashboard();
+  APIDriver apiDriver = APIDriver();
+
+  TextEditingController usernameCtrl = TextEditingController();
+  TextEditingController passwordCtrl = TextEditingController();
+
+  void checkLogin() async {
+    final tokenStorage = TokenStorage();
+    String? accesToken = await tokenStorage.getAccessToken();
+    if (accesToken != null) {
+      toDashboard();
+    }
+  }
+
+  @override
+  void initState() {
+    checkLogin();
+    super.initState();
+  }
+
+  void _login() async {
+    try {
+      await apiDriver.login(usernameCtrl.text, passwordCtrl.text);
+      toDashboard();
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
   }
 
   void toDashboard() {
@@ -38,49 +68,20 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SizedBox(height: 20),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email, color: Colors.blue[900]),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.blue[900]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.blue[900]!),
-                  ),
-                ),
+              BoxedTextField(
+                label: "Username",
+                icon: Icons.person,
+                controller: usernameCtrl,
               ),
               SizedBox(height: 10),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: Icon(Icons.lock, color: Colors.blue[900]),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.blue[900]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.blue[900]!),
-                  ),
-                ),
+              BoxedTextField(
+                label: "Password",
+                icon: Icons.lock,
+                obscured: true,
+                controller: passwordCtrl,
               ),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  _login();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[900],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text('Login', style: TextStyle(fontSize: 18)),
-              ),
+              BlueButton(text: "Login", onPressed: () => _login()),
               SizedBox(height: 10),
               TextButton(
                 onPressed: () {

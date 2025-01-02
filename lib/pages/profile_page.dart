@@ -1,5 +1,8 @@
 // lib/widgets/profile_page.dart
 import 'package:flutter/material.dart';
+import 'package:food_finder/components/styles.dart';
+import 'package:food_finder/components/widgets.dart';
+import 'package:food_finder/helpers/api_services.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -7,90 +10,110 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final TextEditingController _usernameController = TextEditingController(
-    text: 'username123',
-  );
-  final TextEditingController _emailController = TextEditingController(
-    text: 'user@example.com',
-  );
-  final TextEditingController _firstNameController = TextEditingController(
-    text: 'John',
-  );
-  final TextEditingController _lastNameController = TextEditingController(
-    text: 'Doe',
-  );
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+
+  final TextEditingController _oldPasswordController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
+  final api = APIServices();
+
+  void getProfile() async {
+    final profile = await api.getProfile();
+    setState(() {
+      _usernameController.text = profile['username'];
+      _emailController.text = profile['email'];
+      _firstNameController.text = profile['first_name'];
+      _lastNameController.text = profile['last_name'];
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getProfile();
+  }
+
+  void updateProfile() async {
+    final result = await api.updateProfile(
+      _emailController.text,
+      _firstNameController.text,
+      _lastNameController.text,
+    );
+    if (result.isEmpty) {
+      throw Exception("Perubahan profil gagal");
+    } else {}
+  }
+
+  void changePassword() {
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+    if (password.isNotEmpty && password == confirmPassword) {
+      api
+          .updatePassword(
+            _oldPasswordController.text,
+            password,
+            confirmPassword,
+          )
+          .then((onValue) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Password changed successfully')),
+            );
+            Navigator.of(context).pop();
+          });
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Passwords do not match')));
+    }
+  }
 
   void _showChangePasswordDialog() {
-    final TextEditingController _passwordController = TextEditingController();
-    final TextEditingController _confirmPasswordController =
-        TextEditingController();
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Change Password'),
+          title: Text('Ganti Password'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              TextField(
+              BoxedTextField(
+                label: "Password Lama",
+                icon: Icons.lock_outline,
+                obscured: true,
+                controller: _oldPasswordController,
+              ),
+              BoxedTextField(
+                label: "Password Baru",
+                icon: Icons.lock,
+                obscured: true,
                 controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'New Password',
-                  prefixIcon: Icon(Icons.lock, color: Colors.blue[900]),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.blue[900]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.blue[900]!),
-                  ),
-                ),
               ),
               SizedBox(height: 10),
-              TextField(
+              BoxedTextField(
+                label: "Konfirmasi password",
+                icon: Icons.lock,
+                obscured: true,
                 controller: _confirmPasswordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Confirm Password',
-                  prefixIcon: Icon(Icons.lock, color: Colors.blue[900]),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.blue[900]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.blue[900]!),
-                  ),
-                ),
               ),
             ],
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: Text('Batal'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Save'),
+              child: Text('Ganti Password'),
               onPressed: () {
-                final password = _passwordController.text;
-                final confirmPassword = _confirmPasswordController.text;
-                if (password.isNotEmpty && password == confirmPassword) {
-                  // Aksi ketika password berhasil disimpan
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Password changed successfully')),
-                  );
-                  Navigator.of(context).pop();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Passwords do not match')),
-                  );
-                }
+                changePassword();
               },
             ),
           ],
@@ -112,111 +135,49 @@ class _ProfilePageState extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage('https://via.placeholder.com/100'),
+              radius: 80,
+              backgroundImage: AssetImage('assets/images/user_default.png'),
             ),
             SizedBox(height: 20),
             TextField(
               controller: _usernameController,
               readOnly: true,
-              decoration: InputDecoration(
-                labelText: 'Username',
-                prefixIcon: Icon(Icons.person, color: Colors.blue[900]),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-              ),
+              decoration: boxedInputDecoration("Username", Icons.person),
             ),
             SizedBox(height: 10),
-            TextField(
+            BoxedTextField(
+              label: "Email",
+              icon: Icons.email,
               controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email, color: Colors.blue[900]),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-              ),
             ),
             SizedBox(height: 10),
-            TextField(
+            BoxedTextField(
+              label: "Nama depan",
+              icon: Icons.person_outline,
               controller: _firstNameController,
-              decoration: InputDecoration(
-                labelText: 'First Name',
-                prefixIcon: Icon(Icons.person, color: Colors.blue[900]),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-              ),
             ),
             SizedBox(height: 10),
-            TextField(
+            BoxedTextField(
+              label: "Nama belakang",
+              icon: Icons.person_outline,
               controller: _lastNameController,
-              decoration: InputDecoration(
-                labelText: 'Last Name',
-                prefixIcon: Icon(Icons.person, color: Colors.blue[900]),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-              ),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
+            BlueButton(
+              text: "Update Profil",
               onPressed: () {
-                // Aksi ketika tombol save profile ditekan
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Profile saved successfully')),
-                );
+                updateProfile();
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[900],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text('Save Profile', style: TextStyle(fontSize: 18)),
             ),
             SizedBox(height: 10),
-            ElevatedButton(
+            BlueButton(
+              text: "Ganti Password",
               onPressed: _showChangePasswordDialog,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[900],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text('Change Password', style: TextStyle(fontSize: 18)),
             ),
             SizedBox(height: 10),
-            ElevatedButton(
+            BlueButton(
+              text: "Resto Anda",
               onPressed: _navigateToRestaurantProfile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[900],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text('Restaurant Profile', style: TextStyle(fontSize: 18)),
             ),
           ],
         ),

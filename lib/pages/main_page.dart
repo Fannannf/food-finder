@@ -1,8 +1,11 @@
 // lib/pages/main_page.dart
 import 'package:flutter/material.dart';
+import 'package:food_finder/components/styles.dart';
+import 'package:food_finder/helpers/token_storage.dart';
 import 'package:food_finder/pages/profile_page.dart';
 
 import '../components/dashboard_page.dart';
+import 'login_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -13,6 +16,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
+  TokenStorage tokenStorage = TokenStorage();
 
   void _onTabTapped(int index) {
     setState(() {
@@ -24,7 +28,26 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Food Finder'),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'logout') {
+                tokenStorage.deleteAllTokens();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                  (route) => false,
+                );
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem<String>(value: 'logout', child: Text('Logout')),
+              ];
+            },
+          ),
+        ],
+        title: Text('Food Finder', style: whiteBoldText),
         backgroundColor: Colors.blue[900],
       ),
       body: _currentIndex == 0 ? DashboardPage() : ProfilePage(),

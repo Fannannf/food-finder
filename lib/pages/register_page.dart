@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:food_finder/components/styles.dart';
+import 'package:food_finder/components/widgets.dart';
+import 'package:food_finder/helpers/api_driver.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -14,6 +17,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
+  APIDriver apiDriver = APIDriver();
+
   @override
   void dispose() {
     _usernameController.dispose();
@@ -25,16 +30,28 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  void _register() {
+  void _register() async {
     if (_formKey.currentState!.validate()) {
-      // Aksi ketika form valid
-      print('Username: ${_usernameController.text}');
-      print('First Name: ${_firstNameController.text}');
-      print('Last Name: ${_lastNameController.text}');
-      print('Email: ${_emailController.text}');
-      print('Password: ${_passwordController.text}');
-      print('Confirm Password: ${_confirmPasswordController.text}');
+      print("inputan valid, saatnya di-register");
+      await apiDriver.register({
+        'username': _usernameController.text,
+        'password': _passwordController.text,
+        'confirmation': _confirmPasswordController.text,
+        'email': _emailController.text,
+        'first_name': _firstNameController.text,
+        'last_name': _lastNameController.text,
+      });
+      await apiDriver.login(_usernameController.text, _passwordController.text);
+      toDashboard();
     }
+  }
+
+  void toDashboard() {
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      "/main",
+      (Route<dynamic> route) => false,
+    );
   }
 
   @override
@@ -61,18 +78,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   SizedBox(height: 20),
                   TextFormField(
                     controller: _usernameController,
-                    decoration: InputDecoration(
-                      labelText: 'Username',
-                      prefixIcon: Icon(Icons.person, color: Colors.blue[900]),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
-                    ),
+                    decoration: boxedInputDecoration("Username", Icons.person),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Username tidak boleh kosong';
@@ -83,21 +89,13 @@ class _RegisterPageState extends State<RegisterPage> {
                   SizedBox(height: 10),
                   TextFormField(
                     controller: _firstNameController,
-                    decoration: InputDecoration(
-                      labelText: 'First Name',
-                      prefixIcon: Icon(Icons.person, color: Colors.blue[900]),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
+                    decoration: boxedInputDecoration(
+                      "Nama depan",
+                      Icons.person_outline,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'First Name tidak boleh kosong';
+                        return 'Nama depan tidak boleh kosong';
                       }
                       return null;
                     },
@@ -105,21 +103,13 @@ class _RegisterPageState extends State<RegisterPage> {
                   SizedBox(height: 10),
                   TextFormField(
                     controller: _lastNameController,
-                    decoration: InputDecoration(
-                      labelText: 'Last Name',
-                      prefixIcon: Icon(Icons.person, color: Colors.blue[900]),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
+                    decoration: boxedInputDecoration(
+                      "Nama belakang",
+                      Icons.person_outline,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Last Name tidak boleh kosong';
+                        return 'Nama belakang tidak boleh kosong';
                       }
                       return null;
                     },
@@ -127,18 +117,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   SizedBox(height: 10),
                   TextFormField(
                     controller: _emailController,
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      prefixIcon: Icon(Icons.email, color: Colors.blue[900]),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
-                    ),
+                    decoration: boxedInputDecoration("Email", Icons.email),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Email tidak boleh kosong';
@@ -155,18 +134,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      prefixIcon: Icon(Icons.lock, color: Colors.blue[900]),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
-                    ),
+                    decoration: boxedInputDecoration("Password", Icons.lock),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Password tidak boleh kosong';
@@ -181,17 +149,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   TextFormField(
                     controller: _confirmPasswordController,
                     obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Confirm Password',
-                      prefixIcon: Icon(Icons.lock, color: Colors.blue[900]),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
+                    decoration: boxedInputDecoration(
+                      "Konfirmasi password",
+                      Icons.lock,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -204,16 +164,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     },
                   ),
                   SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _register,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[900],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Text('Register', style: TextStyle(fontSize: 18)),
-                  ),
+                  BlueButton(text: "Register", onPressed: () => _register()),
                   SizedBox(height: 10),
                   TextButton(
                     onPressed: () {
