@@ -2,6 +2,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:food_finder/components/styles.dart';
+import 'package:food_finder/components/widgets.dart';
+import 'package:food_finder/helpers/location_service.dart';
+import 'package:food_finder/models/restaurant.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
 class RestaurantFormTab extends StatefulWidget {
@@ -10,8 +15,9 @@ class RestaurantFormTab extends StatefulWidget {
   final TextEditingController addressController;
   final TextEditingController phoneController;
   final TextEditingController websiteController;
-  final TextEditingController latitudeController;
-  final TextEditingController longitudeController;
+  final TextEditingController latLongController;
+
+  Restaurant? resto;
 
   RestaurantFormTab({
     required this.nameController,
@@ -19,8 +25,8 @@ class RestaurantFormTab extends StatefulWidget {
     required this.addressController,
     required this.phoneController,
     required this.websiteController,
-    required this.latitudeController,
-    required this.longitudeController,
+    required this.latLongController,
+    this.resto,
   });
 
   @override
@@ -41,6 +47,22 @@ class _RestaurantFormTabState extends State<RestaurantFormTab> {
     });
   }
 
+  final LocationService _loc = LocationService();
+  Position? currentPos;
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      final position = await _loc.getCurrentLocation();
+      setState(() {
+        currentPos = position;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error getting location: $e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -53,8 +75,8 @@ class _RestaurantFormTabState extends State<RestaurantFormTab> {
                   borderRadius: BorderRadius.circular(10),
                   child: Image.file(
                     File(_image!.path),
-                    width: 150,
-                    height: 150,
+                    width: 350,
+                    height: 200,
                     fit: BoxFit.cover,
                   ),
                 )
@@ -83,7 +105,7 @@ class _RestaurantFormTabState extends State<RestaurantFormTab> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: Text('Camera', style: TextStyle(fontSize: 16)),
+                  child: Text('Camera', style: whiteBoldText),
                 ),
                 ElevatedButton(
                   onPressed: () => _pickImage(ImageSource.gallery),
@@ -93,139 +115,74 @@ class _RestaurantFormTabState extends State<RestaurantFormTab> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: Text('Gallery', style: TextStyle(fontSize: 16)),
+                  child: Text('Gallery', style: whiteBoldText),
                 ),
               ],
             ),
             SizedBox(height: 20),
-            TextField(
+            BoxedTextField(
+              label: "Nama menu",
+              icon: Icons.restaurant,
               controller: widget.nameController,
-              decoration: InputDecoration(
-                labelText: 'Name',
-                prefixIcon: Icon(Icons.restaurant, color: Colors.blue[900]),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-              ),
             ),
             SizedBox(height: 10),
             TextField(
               controller: widget.descriptionController,
               maxLines: 3,
-              decoration: InputDecoration(
-                labelText: 'Description',
-                prefixIcon: Icon(Icons.description, color: Colors.blue[900]),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-              ),
+              decoration: boxedInputDecoration("Deskripsi", Icons.description),
             ),
             SizedBox(height: 10),
-            TextField(
+            BoxedTextField(
+              label: "Alamat",
+              icon: Icons.location_city,
               controller: widget.addressController,
-              decoration: InputDecoration(
-                labelText: 'Address',
-                prefixIcon: Icon(Icons.location_on, color: Colors.blue[900]),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-              ),
             ),
             SizedBox(height: 10),
-            TextField(
+            BoxedTextField(
+              label: "No. Telepon",
+              icon: Icons.phone,
               controller: widget.phoneController,
-              decoration: InputDecoration(
-                labelText: 'Phone',
-                prefixIcon: Icon(Icons.phone, color: Colors.blue[900]),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-              ),
             ),
             SizedBox(height: 10),
-            TextField(
+            BoxedTextField(
+              label: "Website",
+              icon: Icons.web,
               controller: widget.websiteController,
-              decoration: InputDecoration(
-                labelText: 'Website',
-                prefixIcon: Icon(Icons.web, color: Colors.blue[900]),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.blue[900]!),
-                ),
-              ),
             ),
             SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
                   child: TextField(
-                    controller: widget.latitudeController,
-                    decoration: InputDecoration(
-                      labelText: 'Latitude',
-                      prefixIcon: Icon(
-                        Icons.location_pin,
-                        color: Colors.blue[900],
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
+                    decoration: boxedInputDecoration(
+                      "Lat / Long",
+                      Icons.location_pin,
                     ),
+                    readOnly: true,
+                    controller: widget.latLongController,
                   ),
                 ),
                 SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: widget.longitudeController,
-                    decoration: InputDecoration(
-                      labelText: 'Longitude',
-                      prefixIcon: Icon(
-                        Icons.location_pin,
-                        color: Colors.blue[900],
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[900]!),
-                      ),
+                ElevatedButton(
+                  onPressed: () {
+                    _getCurrentLocation().then((value) {
+                      widget.latLongController.text =
+                          "${currentPos!.latitude},${currentPos!.longitude}";
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[900],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
+                  child: Icon(Icons.map, color: Colors.white),
                 ),
               ],
             ),
             SizedBox(height: 20),
-            ElevatedButton(
+            BlueButton(
+              text: "Simpan Profil",
               onPressed: () {
                 // Aksi ketika tombol save ditekan
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -234,13 +191,6 @@ class _RestaurantFormTabState extends State<RestaurantFormTab> {
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[900],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text('Save', style: TextStyle(fontSize: 18)),
             ),
           ],
         ),

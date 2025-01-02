@@ -28,7 +28,7 @@ class APIDriver {
       await _tokenStorage.saveExpirationToken(expiration);
       await _tokenStorage.saveRefreshToken(refreshToken);
     } else {
-      throw Exception("Login gagal:" + jsonDecode(response.body)['message']);
+      throw Exception("Login gagal:" + jsonDecode(response.body)['detail']);
     }
   }
 

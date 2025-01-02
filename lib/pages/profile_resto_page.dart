@@ -1,14 +1,18 @@
 // lib/pages/profile_restaurant_page.dart
 import 'package:flutter/material.dart';
+import 'package:food_finder/components/styles.dart';
 import 'package:food_finder/models/dummy_data.dart';
+import 'package:food_finder/models/restaurant.dart';
 
 import '../components/menu_list_tab.dart';
 import '../components/restaurant_form_tab.dart';
+import '../components/widgets.dart';
 import '../models/menu.dart';
 import 'menu_form_page.dart';
 
 class ProfileRestaurantPage extends StatefulWidget {
-  const ProfileRestaurantPage({super.key});
+  Restaurant? resto;
+  ProfileRestaurantPage({super.key, this.resto});
 
   @override
   _ProfileRestaurantPageState createState() => _ProfileRestaurantPageState();
@@ -16,27 +20,12 @@ class ProfileRestaurantPage extends StatefulWidget {
 
 class _ProfileRestaurantPageState extends State<ProfileRestaurantPage> {
   int _currentIndex = 0;
-  final TextEditingController _nameController = TextEditingController(
-    text: 'Restoran A',
-  );
-  final TextEditingController _descriptionController = TextEditingController(
-    text: 'Restoran A menyediakan makanan internasional.',
-  );
-  final TextEditingController _addressController = TextEditingController(
-    text: 'Jl. A No. 1',
-  );
-  final TextEditingController _phoneController = TextEditingController(
-    text: '081234567890',
-  );
-  final TextEditingController _websiteController = TextEditingController(
-    text: 'https://restorana.com',
-  );
-  final TextEditingController _latitudeController = TextEditingController(
-    text: '-6.2088',
-  );
-  final TextEditingController _longitudeController = TextEditingController(
-    text: '106.8456',
-  );
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _websiteController = TextEditingController();
+  final TextEditingController _latLongController = TextEditingController();
 
   List<Menu> _menus = dummyMenus;
 
@@ -52,9 +41,21 @@ class _ProfileRestaurantPageState extends State<ProfileRestaurantPage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Restaurant Profile'),
+          title: Text('Profil Restoran', style: whiteBoldText),
           backgroundColor: Colors.blue[900],
-          bottom: TabBar(tabs: [Tab(text: 'Profil'), Tab(text: 'Daftar Menu')]),
+          bottom: TabBar(
+            labelStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: Colors.white,
+            ),
+            unselectedLabelStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: Colors.white54,
+            ),
+            tabs: [Tab(text: 'Profil'), Tab(text: 'Daftar Menu')],
+          ),
         ),
         body: TabBarView(
           children: [
@@ -64,8 +65,8 @@ class _ProfileRestaurantPageState extends State<ProfileRestaurantPage> {
               addressController: _addressController,
               phoneController: _phoneController,
               websiteController: _websiteController,
-              latitudeController: _latitudeController,
-              longitudeController: _longitudeController,
+              latLongController: _latLongController,
+              resto: widget.resto,
             ),
             MenuListTab(menus: _menus, onMenuAdded: _addMenu),
           ],
@@ -86,6 +87,40 @@ class _ProfileRestaurantPageState extends State<ProfileRestaurantPage> {
                   backgroundColor: Colors.blue[900],
                 )
                 : null,
+      ),
+    );
+  }
+}
+
+class NoRestoPage extends StatefulWidget {
+  @override
+  State<NoRestoPage> createState() => _NoRestoTabState();
+}
+
+class _NoRestoTabState extends State<NoRestoPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child: Container(
+          margin: EdgeInsets.symmetric(vertical: 80, horizontal: 30),
+          child: Column(
+            children: [
+              Text(
+                'Anda belum memiliki restoran',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+              SizedBox(height: 20),
+              BlueButton(
+                text: "Buat Resto Sekarang",
+                onPressed: () {
+                  Navigator.pushNamed(context, '/profile_restaurant');
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

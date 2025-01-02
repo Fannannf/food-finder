@@ -20,6 +20,7 @@ class MainApp extends StatelessWidget {
         '/': (context) => LoginPage(),
         '/main': (context) => MainPage(),
         '/profile_restaurant': (context) => ProfileRestaurantPage(),
+        '/no_resto': (context) => NoRestoPage(),
       },
     );
   }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:food_finder/components/styles.dart';
 import 'package:food_finder/components/widgets.dart';
 import 'package:food_finder/helpers/api_services.dart';
+import 'package:food_finder/models/restaurant.dart';
+import 'package:food_finder/pages/profile_resto_page.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -21,22 +23,24 @@ class _ProfilePageState extends State<ProfilePage> {
       TextEditingController();
 
   final api = APIServices();
+  Restaurant? resto;
 
   void getProfile() async {
     final profile = await api.getProfile();
+    print(profile);
     setState(() {
       _usernameController.text = profile['username'];
       _emailController.text = profile['email'];
       _firstNameController.text = profile['first_name'];
       _lastNameController.text = profile['last_name'];
     });
+    resto = profile['restaurant'];
   }
 
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
     getProfile();
+    super.initState();
   }
 
   void updateProfile() async {
@@ -123,7 +127,18 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _navigateToRestaurantProfile() {
-    Navigator.pushNamed(context, '/profile_restaurant');
+    if (this.resto == null) {
+      Navigator.pushNamed(context, '/no_resto');
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return ProfileRestaurantPage();
+          },
+        ),
+      );
+    }
   }
 
   @override

@@ -5,7 +5,6 @@ import 'restaurant.dart';
 List<Restaurant> dummyRestaurants = [
   Restaurant(
     name: 'Restoran A',
-    owner: 'John Doe',
     description: 'Restoran A menyediakan makanan internasional.',
     address: 'Jl. A No. 1',
     phone: '081234567890',
@@ -17,7 +16,6 @@ List<Restaurant> dummyRestaurants = [
   ),
   Restaurant(
     name: 'Restoran B',
-    owner: 'Jane Smith',
     description: 'Restoran B menyediakan makanan lokal.',
     address: 'Jl. B No. 2',
     phone: '081234567891',
@@ -28,7 +26,6 @@ List<Restaurant> dummyRestaurants = [
   ),
   Restaurant(
     name: 'Restoran C',
-    owner: 'Alice Johnson',
     description: 'Restoran C menyediakan makanan khas.',
     address: 'Jl. C No. 3',
     phone: '081234567892',
@@ -39,7 +36,6 @@ List<Restaurant> dummyRestaurants = [
   ),
   Restaurant(
     name: 'Restoran D',
-    owner: 'Bob Brown',
     description: 'Restoran D menyediakan makanan cepat saji.',
     address: 'Jl. D No. 4',
     phone: '081234567893',
@@ -50,7 +46,6 @@ List<Restaurant> dummyRestaurants = [
   ),
   Restaurant(
     name: 'Restoran E',
-    owner: 'Charlie Davis',
     description: 'Restoran E menyediakan makanan khas Indonesia.',
     address: 'Jl. E No. 5',
     phone: '081234567894',
