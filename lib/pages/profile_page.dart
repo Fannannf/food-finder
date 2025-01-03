@@ -34,7 +34,7 @@ class _ProfilePageState extends State<ProfilePage> {
       _firstNameController.text = profile['first_name'];
       _lastNameController.text = profile['last_name'];
     });
-    resto = profile['restaurant'];
+    resto = Restaurant.fromJson(profile['restaurant']);
   }
 
   @override
@@ -60,16 +60,16 @@ class _ProfilePageState extends State<ProfilePage> {
     if (password.isNotEmpty && password == confirmPassword) {
       api
           .updatePassword(
-            _oldPasswordController.text,
-            password,
-            confirmPassword,
-          )
+        _oldPasswordController.text,
+        password,
+        confirmPassword,
+      )
           .then((onValue) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Password changed successfully')),
-            );
-            Navigator.of(context).pop();
-          });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Password changed successfully')),
+        );
+        Navigator.of(context).pop();
+      });
     } else {
       ScaffoldMessenger.of(
         context,
@@ -134,7 +134,9 @@ class _ProfilePageState extends State<ProfilePage> {
         context,
         MaterialPageRoute(
           builder: (context) {
-            return ProfileRestaurantPage();
+            return ProfileRestaurantPage(
+              resto: resto,
+            );
           },
         ),
       );

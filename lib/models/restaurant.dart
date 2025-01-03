@@ -1,26 +1,25 @@
 // lib/models/restaurant.dart
 class Restaurant {
-  final int id;
+  late int id;
   final String name;
-  final String description;
-  final String address;
-  final String phone;
-  final String website;
-  final double latitude;
-  final double longitude;
-  final String image;
+  final String? description;
+  final String? address;
+  final String? phone;
+  final String? website;
+  final double? latitude;
+  final double? longitude;
+  final String? image;
 
-  Restaurant({
-    this.id = 0,
-    required this.name,
-    required this.description,
-    required this.address,
-    required this.phone,
-    required this.website,
-    required this.latitude,
-    required this.longitude,
-    required this.image,
-  });
+  Restaurant(
+      {this.id = 0,
+      required this.name,
+      this.description,
+      this.address,
+      this.phone,
+      this.website,
+      this.latitude,
+      this.longitude,
+      this.image});
 
   factory Restaurant.fromJson(Map<String, dynamic> json) {
     return Restaurant(
@@ -41,9 +40,10 @@ class Restaurant {
       'id': this.id,
       'name': this.name,
       'address': this.address,
+      'description': this.description,
       'phone': this.phone,
       'website': this.website,
-      'latitude': this.latitude,
+      'lattitude': this.latitude,
       'longitude': this.longitude,
     };
   }

@@ -4,7 +4,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:food_finder/components/styles.dart';
 import 'package:food_finder/components/widgets.dart';
+import 'package:food_finder/helpers/api_services.dart';
 import 'package:food_finder/helpers/location_service.dart';
+import 'package:food_finder/helpers/variables.dart';
 import 'package:food_finder/models/restaurant.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -35,6 +37,7 @@ class RestaurantFormTab extends StatefulWidget {
 
 class _RestaurantFormTabState extends State<RestaurantFormTab> {
   XFile? _image;
+  APIServices api = APIServices();
 
   Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
@@ -63,6 +66,33 @@ class _RestaurantFormTabState extends State<RestaurantFormTab> {
     }
   }
 
+  Future<void> saveProfile() async {
+    List<String> latlong = widget.latLongController.text.split(',');
+    double latitude = double.parse(latlong[0]);
+    double longitude = double.parse(latlong[1]);
+    Restaurant dataResto = Restaurant(
+        name: widget.nameController.text,
+        description: widget.descriptionController.text,
+        address: widget.addressController.text,
+        phone: widget.phoneController.text,
+        website: widget.websiteController.text,
+        latitude: latitude,
+        longitude: longitude);
+
+    Restaurant resResto;
+    if (widget.resto == null) {
+      resResto = await api.addRestaurant(dataResto);
+    } else {
+      dataResto.id = widget.resto!.id;
+      resResto = await api.updateRestaurant(dataResto);
+    }
+
+    if (_image != null) {
+      final imageFile = File(_image!.path);
+      api.uploadRestoImage(resResto, imageFile);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -72,28 +102,31 @@ class _RestaurantFormTabState extends State<RestaurantFormTab> {
           children: [
             _image != null
                 ? ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.file(
-                    File(_image!.path),
-                    width: 350,
-                    height: 200,
-                    fit: BoxFit.cover,
-                  ),
-                )
-                : Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(10),
+                    child: Image.file(
+                      File(_image!.path),
+                      width: 350,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: widget.resto!.image != null
+                        ? Image.network(
+                            Variables.url + widget.resto!.image!,
+                            width: 350,
+                            height: 200,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            'assets/images/resto_default.png',
+                            width: 350,
+                            height: 200,
+                            fit: BoxFit.cover,
+                          ),
                   ),
-                  child: Icon(
-                    Icons.camera_alt,
-                    size: 50,
-                    color: Colors.grey[600],
-                  ),
-                ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -184,12 +217,13 @@ class _RestaurantFormTabState extends State<RestaurantFormTab> {
             BlueButton(
               text: "Simpan Profil",
               onPressed: () {
-                // Aksi ketika tombol save ditekan
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Restaurant profile saved successfully'),
-                  ),
-                );
+                saveProfile().then((value) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Berhasil menyimpan data resto'),
+                    ),
+                  );
+                });
               },
             ),
           ],

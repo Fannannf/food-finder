@@ -29,11 +29,10 @@ class RestaurantCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder:
-                  (context) => RestaurantDetailPage(
-                    restaurant: restaurant,
-                    menus: menus,
-                  ),
+              builder: (context) => RestaurantDetailPage(
+                restaurant: restaurant,
+                menus: menus,
+              ),
             ),
           );
         },
@@ -46,7 +45,7 @@ class RestaurantCard extends StatelessWidget {
                 topRight: Radius.circular(10),
               ),
               child: Image.asset(
-                restaurant.image,
+                restaurant.image ?? '/assets/images/resto_default.png',
                 width: double.infinity,
                 height: 150,
                 fit: BoxFit.cover,
@@ -78,7 +77,7 @@ class RestaurantCard extends StatelessWidget {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          restaurant.description,
+                          restaurant.description ?? '',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.blue[900],
@@ -89,7 +88,7 @@ class RestaurantCard extends StatelessWidget {
                   ),
                   SizedBox(width: 10),
                   ElevatedButton(
-                    onPressed: () => _makePhoneCall(restaurant.phone),
+                    onPressed: () => _makePhoneCall(restaurant.phone ?? ''),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue[900],
                       shape: RoundedRectangleBorder(

@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:food_finder/helpers/api_driver.dart';
+import 'package:food_finder/models/restaurant.dart';
 
 class APIServices {
   APIDriver driver = APIDriver();
@@ -44,5 +46,22 @@ class APIServices {
     if (response.statusCode != 200) {
       throw Exception("Perubahan password gagal");
     }
+  }
+
+  Future<Restaurant> addRestaurant(Restaurant resto) async {
+    final response = await driver.post('/resto', resto.toJson());
+    final savedResto = Restaurant.fromJson(jsonDecode(response.body));
+    return savedResto;
+  }
+
+  Future<Restaurant> uploadRestoImage(Restaurant resto, File restoImage) async {
+    await driver.uploadImage('/resto/${resto.id}/image', restoImage);
+    return resto;
+  }
+
+  Future<Restaurant> updateRestaurant(Restaurant resto) async {
+    final response = await driver.put('/resto/${resto.id}', resto.toJson());
+    final savedResto = Restaurant.fromJson(jsonDecode(response.body));
+    return savedResto;
   }
 }

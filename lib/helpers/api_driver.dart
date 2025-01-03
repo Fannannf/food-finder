@@ -1,6 +1,8 @@
 // lib/api_driver.dart
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 
 import 'token_storage.dart';
@@ -8,6 +10,7 @@ import 'token_storage.dart';
 class APIDriver {
   final String _baseUrl = 'http://10.0.2.2:8001/api';
   final TokenStorage _tokenStorage = TokenStorage();
+  final Dio _dio = Dio();
 
   // Login
   Future<void> login(String username, String password) async {
@@ -148,7 +151,7 @@ class APIDriver {
     if (response.statusCode == 200) {
       return response;
     } else {
-      throw Exception('Failed to put data');
+      throw Exception('Gagal updata data: $url');
     }
   }
 
@@ -172,6 +175,42 @@ class APIDriver {
       return response;
     } else {
       throw Exception('Failed to delete data');
+    }
+  }
+
+  // Upload Image
+  Future<void> uploadImage(String endpoint, File imageFile) async {
+    final url = _baseUrl + endpoint;
+    final accessToken = await _tokenStorage.getAccessToken();
+    final expiration = await _tokenStorage.getExpirationToken();
+
+    if (accessToken == null ||
+        expiration == null ||
+        expiration.isBefore(DateTime.now())) {
+      await refresh();
+    }
+
+    final formData = FormData.fromMap({
+      'image': await MultipartFile.fromFile(
+        imageFile.path,
+        filename: imageFile.path.split('/').last,
+      ),
+    });
+
+    final response = await _dio.post(
+      url,
+      data: formData,
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      final data = response.data;
+    } else {
+      throw Exception('Gagal upload ${response.data}');
     }
   }
 }

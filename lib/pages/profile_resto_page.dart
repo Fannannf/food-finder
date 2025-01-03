@@ -29,6 +29,22 @@ class _ProfileRestaurantPageState extends State<ProfileRestaurantPage> {
 
   List<Menu> _menus = dummyMenus;
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    final curResto = widget.resto;
+    if (curResto != null) {
+      _nameController.text = curResto.name;
+      _descriptionController.text = curResto.description ?? '';
+      _addressController.text = curResto.address ?? '';
+      _phoneController.text = curResto.phone ?? '';
+      _websiteController.text = curResto.website ?? '';
+      _latLongController.text =
+          "${(curResto.latitude ?? 0)},${(curResto.longitude ?? 0)}";
+    }
+  }
+
   void _addMenu(Menu menu) {
     setState(() {
       _menus.add(menu);
@@ -71,22 +87,20 @@ class _ProfileRestaurantPageState extends State<ProfileRestaurantPage> {
             MenuListTab(menus: _menus, onMenuAdded: _addMenu),
           ],
         ),
-        floatingActionButton:
-            _currentIndex == 1
-                ? FloatingActionButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => AddMenuPage(onMenuAdded: _addMenu),
-                      ),
-                    );
-                  },
-                  child: Icon(Icons.add),
-                  backgroundColor: Colors.blue[900],
-                )
-                : null,
+        floatingActionButton: _currentIndex == 1
+            ? FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddMenuPage(onMenuAdded: _addMenu),
+                    ),
+                  );
+                },
+                child: Icon(Icons.add),
+                backgroundColor: Colors.blue[900],
+              )
+            : null,
       ),
     );
   }

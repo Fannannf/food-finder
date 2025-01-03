@@ -65,7 +65,8 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
               height: 200,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(widget.restaurant.image),
+                  image: AssetImage(widget.restaurant.image ??
+                      '/assets/images/resto_default.png'),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -111,7 +112,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.restaurant.description,
+                          widget.restaurant.description ?? '',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.blue[900],
@@ -127,7 +128,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                           ),
                         ),
                         Text(
-                          widget.restaurant.address,
+                          widget.restaurant.address ?? '',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.blue[900],
@@ -143,9 +144,10 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => _launchURL(widget.restaurant.website),
+                          onTap: () => _launchURL(
+                              widget.restaurant.website ?? 'http://'),
                           child: Text(
-                            widget.restaurant.website,
+                            widget.restaurant.website ?? 'http://',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.blue[900],
@@ -163,9 +165,10 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => _makePhoneCall(widget.restaurant.phone),
+                          onTap: () =>
+                              _makePhoneCall(widget.restaurant.phone ?? ''),
                           child: Text(
-                            widget.restaurant.phone,
+                            widget.restaurant.phone ?? '',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.blue[900],
@@ -182,11 +185,10 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed:
-              () => _openGoogleMaps(
-                widget.restaurant.latitude,
-                widget.restaurant.longitude,
-              ),
+          onPressed: () => _openGoogleMaps(
+            widget.restaurant.latitude ?? 0,
+            widget.restaurant.longitude ?? 0,
+          ),
           child: Icon(Icons.map),
           backgroundColor: Colors.blue[900],
         ),
