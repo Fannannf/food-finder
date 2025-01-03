@@ -55,7 +55,8 @@ class APIServices {
   }
 
   Future<Restaurant> uploadRestoImage(Restaurant resto, File restoImage) async {
-    await driver.uploadImage('/resto/${resto.id}/image', restoImage);
+    final response =
+        await driver.uploadImage('/resto/${resto.id}/image', restoImage);
     return resto;
   }
 
@@ -63,5 +64,11 @@ class APIServices {
     final response = await driver.put('/resto/${resto.id}', resto.toJson());
     final savedResto = Restaurant.fromJson(jsonDecode(response.body));
     return savedResto;
+  }
+
+  Future<List<Restaurant>> getResto() async {
+    final response = await driver.get('/resto');
+    List<dynamic> listRestoJson = jsonDecode(response.body);
+    return listRestoJson.map((value) => Restaurant.fromJson(value)).toList();
   }
 }

@@ -59,7 +59,7 @@ class _ProfileRestaurantPageState extends State<ProfileRestaurantPage> {
         appBar: AppBar(
           title: Text('Profil Restoran', style: whiteBoldText),
           backgroundColor: Colors.blue[900],
-          bottom: TabBar(
+          bottom: const TabBar(
             labelStyle: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
@@ -84,7 +84,11 @@ class _ProfileRestaurantPageState extends State<ProfileRestaurantPage> {
               latLongController: _latLongController,
               resto: widget.resto,
             ),
-            MenuListTab(menus: _menus, onMenuAdded: _addMenu),
+            MenuListTab(
+              resto: widget.resto,
+              onMenuAdded: _addMenu,
+              canAddMenu: true,
+            ),
           ],
         ),
         floatingActionButton: _currentIndex == 1
@@ -93,7 +97,10 @@ class _ProfileRestaurantPageState extends State<ProfileRestaurantPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AddMenuPage(onMenuAdded: _addMenu),
+                      builder: (context) => MenuFormPage(
+                        onMenuAdded: _addMenu,
+                        resto: widget.resto!,
+                      ),
                     ),
                   );
                 },

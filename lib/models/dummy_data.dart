@@ -59,15 +59,17 @@ List<Restaurant> dummyRestaurants = [
 List<Menu> dummyMenus = [
   Menu(
     name: 'Menu 1',
+    restoId: 1,
     description: 'Deskripsi Menu 1',
     price: 25000,
-    image: 'assets/images/menu_default.png',
+    image: null,
   ),
   Menu(
     name: 'Menu 2',
+    restoId: 1,
     description: 'Deskripsi Menu 2',
     price: 30000,
-    image: 'assets/images/menu_default.png',
+    image: null,
   ),
   // Tambahkan menu lainnya di sini
 ];
