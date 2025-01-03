@@ -1,5 +1,7 @@
 // lib/pages/restaurant_detail_page.dart
 import 'package:flutter/material.dart';
+import 'package:food_finder/components/styles.dart';
+import 'package:food_finder/helpers/variables.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../components/menu_list_tab.dart';
@@ -8,7 +10,7 @@ import '../models/restaurant.dart';
 
 class RestaurantDetailPage extends StatefulWidget {
   final Restaurant restaurant;
-  final List<Menu> menus;
+  List<Menu> menus = [];
 
   RestaurantDetailPage({required this.restaurant, required this.menus});
 
@@ -54,9 +56,15 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.restaurant.name),
+          title: Text(
+            widget.restaurant.name,
+            style: whiteBoldText,
+          ),
           backgroundColor: Colors.blue[900],
-          bottom: TabBar(tabs: [Tab(text: 'Menu'), Tab(text: 'Info')]),
+          bottom: const TabBar(
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.white54,
+              tabs: [Tab(text: 'Menu'), Tab(text: 'Info')]),
         ),
         body: Column(
           children: [
@@ -65,8 +73,9 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
               height: 200,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(widget.restaurant.image ??
-                      '/assets/images/resto_default.png'),
+                  image: widget.restaurant.image == null
+                      ? const AssetImage('/assets/images/resto_default.png')
+                      : NetworkImage(Variables.url + widget.restaurant.image!),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -87,7 +96,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                     alignment: Alignment.bottomLeft,
                     child: Text(
                       widget.restaurant.name,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -101,82 +110,85 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
               child: TabBarView(
                 children: [
                   MenuListTab(
-                    menus: widget.menus,
+                    resto: widget.restaurant,
                     onMenuAdded: (menu) {
                       // Aksi ketika menu baru ditambahkan
                     },
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.restaurant.description ?? '',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.blue[900],
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.restaurant.description ?? '',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.blue[900],
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          'Address:',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue[900],
+                          SizedBox(height: 20),
+                          Text(
+                            'Address:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[900],
+                            ),
                           ),
-                        ),
-                        Text(
-                          widget.restaurant.address ?? '',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.blue[900],
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          'Website:',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue[900],
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => _launchURL(
-                              widget.restaurant.website ?? 'http://'),
-                          child: Text(
-                            widget.restaurant.website ?? 'http://',
+                          Text(
+                            widget.restaurant.address ?? '',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.blue[900],
-                              decoration: TextDecoration.underline,
                             ),
                           ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          'Phone:',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue[900],
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () =>
-                              _makePhoneCall(widget.restaurant.phone ?? ''),
-                          child: Text(
-                            widget.restaurant.phone ?? '',
+                          SizedBox(height: 10),
+                          Text(
+                            'Website:',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                               color: Colors.blue[900],
-                              decoration: TextDecoration.underline,
                             ),
                           ),
-                        ),
-                      ],
+                          GestureDetector(
+                            onTap: () => _launchURL(
+                                widget.restaurant.website ?? 'http://'),
+                            child: Text(
+                              widget.restaurant.website ?? 'http://',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.blue[900],
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            'Phone:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[900],
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () =>
+                                _makePhoneCall(widget.restaurant.phone ?? ''),
+                            child: Text(
+                              widget.restaurant.phone ?? '',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.blue[900],
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 100)
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -189,7 +201,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
             widget.restaurant.latitude ?? 0,
             widget.restaurant.longitude ?? 0,
           ),
-          child: Icon(Icons.map),
+          child: Icon(Icons.map, color: Colors.white),
           backgroundColor: Colors.blue[900],
         ),
       ),

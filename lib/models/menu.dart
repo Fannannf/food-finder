@@ -1,25 +1,29 @@
 // lib/models/menu.dart
+
 class Menu {
   final int id;
   final String name;
-  final String description;
+  final String? description;
   final double price;
-  final String image;
+  final int restoId;
+  final String? image;
 
   Menu({
     this.id = 0,
     required this.name,
-    required this.description,
+    required this.restoId,
+    this.description,
     required this.price,
-    required this.image,
+    this.image,
   });
 
   factory Menu.fromJson(Map<String, dynamic> json) {
     return Menu(
       id: json['id'],
       name: json['name'],
+      restoId: json['restaurant'],
       description: json['description'],
-      price: json['price'],
+      price: double.parse(json['price']),
       image: json['image'],
     );
   }
@@ -28,6 +32,7 @@ class Menu {
     return {
       'id': this.name,
       'name': this.name,
+      'restaurant_id': this.restoId,
       'description': this.description,
       'price': this.price,
       'image': this.image,

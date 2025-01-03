@@ -3,12 +3,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:food_finder/helpers/variables.dart';
 import 'package:http/http.dart' as http;
 
 import 'token_storage.dart';
 
 class APIDriver {
-  final String _baseUrl = 'http://10.0.2.2:8001/api';
+  final String _baseUrl = '${Variables.url}api';
   final TokenStorage _tokenStorage = TokenStorage();
   final Dio _dio = Dio();
 
@@ -124,7 +125,7 @@ class APIDriver {
     if (response.statusCode == 201 || response.statusCode == 200) {
       return response;
     } else {
-      throw Exception('Failed to post data');
+      throw Exception('Gagal post: ${response.body}');
     }
   }
 
@@ -151,7 +152,7 @@ class APIDriver {
     if (response.statusCode == 200) {
       return response;
     } else {
-      throw Exception('Gagal updata data: $url');
+      throw Exception('Gagal update data: $url');
     }
   }
 
@@ -170,11 +171,11 @@ class APIDriver {
       Uri.parse('$_baseUrl$url'),
       headers: {'Authorization': 'Bearer $accessToken'},
     );
-
+    print(response.statusCode);
     if (response.statusCode == 200 || response.statusCode == 204) {
       return response;
     } else {
-      throw Exception('Failed to delete data');
+      throw Exception('Gagal hapus data: ${response.body}');
     }
   }
 

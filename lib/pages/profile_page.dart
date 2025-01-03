@@ -27,7 +27,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void getProfile() async {
     final profile = await api.getProfile();
-    print(profile);
+    // print(profile);
     setState(() {
       _usernameController.text = profile['username'];
       _emailController.text = profile['email'];

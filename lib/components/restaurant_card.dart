@@ -1,11 +1,12 @@
 // lib/widgets/restaurant_card.dart
 import 'package:flutter/material.dart';
+import 'package:food_finder/helpers/variables.dart';
 import 'package:food_finder/models/dummy_data.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/menu.dart';
 import '../models/restaurant.dart';
-import '../pages/resto_page.dart';
+import '../pages/resto_detail_page.dart';
 
 class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
@@ -40,16 +41,23 @@ class RestaurantCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
               ),
-              child: Image.asset(
-                restaurant.image ?? '/assets/images/resto_default.png',
-                width: double.infinity,
-                height: 150,
-                fit: BoxFit.cover,
-              ),
+              child: restaurant.image != null
+                  ? Image.network(
+                      Variables.url + restaurant.image!,
+                      width: double.infinity,
+                      height: 150,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.asset(
+                      '/assets/images/resto_default.png',
+                      width: double.infinity,
+                      height: 150,
+                      fit: BoxFit.cover,
+                    ),
             ),
             Container(
               padding: EdgeInsets.all(16.0),
@@ -78,6 +86,7 @@ class RestaurantCard extends StatelessWidget {
                         SizedBox(height: 8),
                         Text(
                           restaurant.description ?? '',
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.blue[900],
