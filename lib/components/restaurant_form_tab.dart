@@ -112,7 +112,7 @@ class _RestaurantFormTabState extends State<RestaurantFormTab> {
                   )
                 : ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: widget.resto!.image != null
+                    child: (widget.resto != null && widget.resto!.image != null)
                         ? Image.network(
                             Variables.url + widget.resto!.image!,
                             width: 350,

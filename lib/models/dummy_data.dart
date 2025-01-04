@@ -22,7 +22,7 @@ List<Restaurant> dummyRestaurants = [
     website: 'https://restoranb.com',
     latitude: -6.2089,
     longitude: 106.8457,
-    image: 'assets/images/resto_default.png',
+    image: null,
   ),
   Restaurant(
     name: 'Restoran C',
@@ -32,7 +32,7 @@ List<Restaurant> dummyRestaurants = [
     website: 'https://restoranc.com',
     latitude: -6.2090,
     longitude: 106.8458,
-    image: 'assets/images/resto_default.png',
+    image: null,
   ),
   Restaurant(
     name: 'Restoran D',
@@ -42,7 +42,7 @@ List<Restaurant> dummyRestaurants = [
     website: 'https://restorand.com',
     latitude: -6.2091,
     longitude: 106.8459,
-    image: 'assets/images/resto_default.png',
+    image: null,
   ),
   Restaurant(
     name: 'Restoran E',
@@ -52,7 +52,7 @@ List<Restaurant> dummyRestaurants = [
     website: 'https://restorane.com',
     latitude: -6.2092,
     longitude: 106.8460,
-    image: 'assets/images/resto_default.png',
+    image: null,
   ),
 ];
 
