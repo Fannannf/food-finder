@@ -18,7 +18,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> getResto() async {
     api.getResto().then((responses) {
-      print(responses);
+      // print(responses);
       setState(() {
         _restaurants = responses;
       });

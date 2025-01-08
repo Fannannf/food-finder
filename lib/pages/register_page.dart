@@ -32,7 +32,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _register() async {
     if (_formKey.currentState!.validate()) {
-      print("inputan valid, saatnya di-register");
+      print("inputan valid, saatnya di-register:");
       await apiDriver.register({
         'username': _usernameController.text,
         'password': _passwordController.text,

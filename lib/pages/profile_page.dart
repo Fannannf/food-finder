@@ -34,7 +34,9 @@ class _ProfilePageState extends State<ProfilePage> {
       _firstNameController.text = profile['first_name'];
       _lastNameController.text = profile['last_name'];
     });
-    resto = Restaurant.fromJson(profile['restaurant']);
+    if (profile['restaurant'] != null) {
+      resto = Restaurant.fromJson(profile['restaurant']);
+    }
   }
 
   @override

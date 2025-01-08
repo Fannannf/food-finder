@@ -22,6 +22,8 @@ class APIDriver {
       body: jsonEncode({'username': username, 'password': password}),
     );
 
+    print(response.request!.url);
+
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final accessToken = data['access'];
@@ -32,7 +34,7 @@ class APIDriver {
       await _tokenStorage.saveExpirationToken(expiration);
       await _tokenStorage.saveRefreshToken(refreshToken);
     } else {
-      throw Exception("Login gagal:" + jsonDecode(response.body)['detail']);
+      throw Exception("Login gagal:" + jsonDecode(response.body));
     }
   }
 
@@ -44,6 +46,8 @@ class APIDriver {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(userData),
     );
+
+    print(response.request?.url);
 
     if (response.statusCode == 200) {
       // Registrasi berhasil
