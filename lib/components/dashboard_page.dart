@@ -22,6 +22,7 @@ class _DashboardPageState extends State<DashboardPage> {
       print(responses[2].description);
       setState(() {
         _restaurants = responses;
+        _filteredRestaurants = _restaurants;
       });
     });
   }
@@ -30,7 +31,6 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     getResto();
-    _filteredRestaurants = _restaurants;
   }
 
   void _onSearchChanged(String query) {
@@ -68,9 +68,9 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         Expanded(
           child: ListView.builder(
-            itemCount: _restaurants.length,
+            itemCount: _filteredRestaurants.length,
             itemBuilder: (context, index) {
-              final restaurant = _restaurants[index];
+              final restaurant = _filteredRestaurants[index];
               return RestaurantCard(restaurant: restaurant);
             },
           ),

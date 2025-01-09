@@ -40,6 +40,7 @@ class _MainPageState extends State<MainPage> {
                 );
               }
             },
+            iconColor: Colors.white,
             itemBuilder: (BuildContext context) {
               return [
                 PopupMenuItem<String>(value: 'logout', child: Text('Logout')),

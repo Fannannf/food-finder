@@ -33,21 +33,25 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     await launchUrl(launchUri);
   }
 
+  Future<void> _launchInBrowser(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
   void _openGoogleMaps(double latitude, double longitude) async {
     final Uri googleMapUrl = Uri.parse(
-      'comgooglemaps://?center=$latitude,$longitude&zoom=16&views=traffic',
+      'geo:$latitude,$longitude?q=$latitude,$longitude',
     );
+
     final Uri googleUrl = Uri.parse(
       'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude',
     );
 
-    if (await canLaunchUrl(googleMapUrl)) {
-      await launchUrl(googleMapUrl);
-    } else if (await canLaunchUrl(googleUrl)) {
-      await launchUrl(googleUrl);
-    } else {
-      throw 'Could not launch Google Maps';
-    }
+    _launchInBrowser(googleMapUrl);
   }
 
   @override
@@ -74,7 +78,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
               decoration: BoxDecoration(
                 image: DecorationImage(
                   image: widget.restaurant.image == null
-                      ? const AssetImage('/assets/images/resto_default.png')
+                      ? const AssetImage('assets/images/resto_default.png')
                       : NetworkImage(Variables.url + widget.restaurant.image!),
                   fit: BoxFit.cover,
                 ),
@@ -144,7 +148,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                               color: Colors.blue[900],
                             ),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Text(
                             'Website:',
                             style: TextStyle(
@@ -154,8 +158,17 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () => _launchURL(
-                                widget.restaurant.website ?? 'http://'),
+                            onTap: () {
+                              if (widget.restaurant.website != null &&
+                                  widget.restaurant.website!.isNotEmpty) {
+                                String url = widget.restaurant.website!;
+                                if (!url.startsWith('http')) {
+                                  url = 'https://$url';
+                                }
+                                final uri = Uri.parse(url);
+                                _launchInBrowser(uri);
+                              }
+                            },
                             child: Text(
                               widget.restaurant.website ?? 'http://',
                               style: TextStyle(
