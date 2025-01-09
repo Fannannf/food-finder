@@ -40,6 +40,32 @@ class _MenuFormPageState extends State<MenuFormPage> {
     });
   }
 
+  void _addMenu(BuildContext context) async {
+    final name = _nameController.text;
+    final description = _descriptionController.text;
+    final price = double.tryParse(_priceController.text) ?? 0.0;
+
+    if (name.isNotEmpty && description.isNotEmpty && price > 0) {
+      Menu menu = Menu(
+          name: name,
+          description: description,
+          price: price,
+          restoId: widget.resto.id);
+      menu = await api.addMenu(menu);
+
+      if (_image != null) {
+        final imageFile = File(_image!.path);
+        api.uploadMenuImage(menu, imageFile);
+      }
+      widget.onMenuAdded(menu);
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Inputkan semua isian dengan tepat')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,7 +149,7 @@ class _MenuFormPageState extends State<MenuFormPage> {
               const SizedBox(height: 20),
               BlueButton(
                 text: "Simpan Menu",
-                onPressed: () {},
+                onPressed: () => _addMenu(context),
               )
             ],
           ),

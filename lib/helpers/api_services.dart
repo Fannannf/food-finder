@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:food_finder/helpers/api_driver.dart';
+import 'package:food_finder/models/menu.dart';
 import 'package:food_finder/models/restaurant.dart';
 
 class APIServices {
@@ -70,5 +71,27 @@ class APIServices {
     final response = await driver.get('/resto');
     List<dynamic> listRestoJson = jsonDecode(response.body);
     return listRestoJson.map((value) => Restaurant.fromJson(value)).toList();
+  }
+
+  Future<List<Menu>> getMenu(int restoId) async {
+    final response = await driver.get('/resto/$restoId/menu');
+    List<dynamic> listMenuJson = jsonDecode(response.body);
+    return listMenuJson.map((value) => Menu.fromJson(value)).toList();
+  }
+
+  Future<Menu> addMenu(Menu menu) async {
+    final response =
+        await driver.post('/resto/${menu.restoId}/menu', menu.toJson());
+    final savedMenu = Menu.fromJson(jsonDecode(response.body));
+    return savedMenu;
+  }
+
+  Future<Menu> uploadMenuImage(Menu menu, File menuImage) async {
+    await driver.uploadImage('/menu/${menu.id}/image', menuImage);
+    return menu;
+  }
+
+  Future<void> delMenu(int menuId) async {
+    final response = await driver.delete('/menu/$menuId');
   }
 }

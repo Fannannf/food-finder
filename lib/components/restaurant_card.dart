@@ -53,7 +53,7 @@ class RestaurantCard extends StatelessWidget {
                       fit: BoxFit.cover,
                     )
                   : Image.asset(
-                      'assets/images/resto_default.png',
+                      '/assets/images/resto_default.png',
                       width: double.infinity,
                       height: 150,
                       fit: BoxFit.cover,

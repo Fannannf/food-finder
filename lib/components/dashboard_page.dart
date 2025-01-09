@@ -14,11 +14,12 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   List<Restaurant> _restaurants = [];
+  List<Restaurant> _filteredRestaurants = [];
   APIServices api = APIServices();
 
   Future<void> getResto() async {
     api.getResto().then((responses) {
-      // print(responses);
+      print(responses[2].description);
       setState(() {
         _restaurants = responses;
       });
@@ -29,9 +30,19 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     getResto();
+    _filteredRestaurants = _restaurants;
   }
 
-  void _onSearchChanged(String query) {}
+  void _onSearchChanged(String query) {
+    setState(() {
+      _filteredRestaurants = _restaurants
+          .where(
+            (restaurant) =>
+                restaurant.name.toLowerCase().contains(query.toLowerCase()),
+          )
+          .toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

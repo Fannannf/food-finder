@@ -1,11 +1,10 @@
 // lib/widgets/menu_list_tab.dart
 import 'package:flutter/material.dart';
 import 'package:food_finder/components/widgets.dart';
-import 'package:food_finder/helpers/api_services.dart';
 import 'package:food_finder/helpers/variables.dart';
-import 'package:food_finder/models/dummy_data.dart';
 import 'package:food_finder/models/restaurant.dart';
 
+import '../helpers/api_services.dart';
 import '../models/menu.dart';
 import '../pages/menu_form_page.dart';
 
@@ -28,13 +27,21 @@ class MenuListTab extends StatefulWidget {
 class _MenuListTabState extends State<MenuListTab> {
   APIServices api = APIServices();
 
+  void getMenu() async {
+    if (widget.resto != null && widget.resto!.id > 0) {
+      api.getMenu(widget.resto!.id).then((menus) {
+        setState(() {
+          widget.menus = menus;
+        });
+      });
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    setState(() {
-      widget.menus = dummyMenus;
-    });
+    getMenu();
   }
 
   void _addMenu(BuildContext context) {
@@ -46,6 +53,42 @@ class _MenuListTabState extends State<MenuListTab> {
           resto: widget.resto!,
         ),
       ),
+    );
+  }
+
+  void _deleteMenu(Menu menu) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi hapus'),
+          content: Text('Yakin hapus menu: ${menu.name}'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await api.delMenu(menu.id);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
+              child: const Text(
+                'Hapus',
+                style: TextStyle(fontSize: 18, color: Colors.black),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -120,6 +163,11 @@ class _MenuListTabState extends State<MenuListTab> {
                             ],
                           ),
                         ),
+                        if (widget.canAddMenu)
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.redAccent),
+                            onPressed: () => _deleteMenu(menu),
+                          ),
                       ],
                     ),
                   ),
