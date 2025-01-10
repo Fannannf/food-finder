@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:food_finder/components/styles.dart';
 import 'package:food_finder/helpers/token_storage.dart';
+import 'package:food_finder/components/bookmark_page.dart';
 import 'package:food_finder/pages/profile_page.dart';
 
 import '../components/dashboard_page.dart';
@@ -17,6 +18,12 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
   TokenStorage tokenStorage = TokenStorage();
+
+  final List<Widget> _pages = [
+    DashboardPage(),
+    BookmarkPage(), // Halaman bookmark ditambahkan di sini
+    ProfilePage(),
+  ];
 
   void _onTabTapped(int index) {
     setState(() {
@@ -51,12 +58,14 @@ class _MainPageState extends State<MainPage> {
         title: Text('Food Finder', style: whiteBoldText),
         backgroundColor: Colors.blue[900],
       ),
-      body: _currentIndex == 0 ? DashboardPage() : ProfilePage(),
+      body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.bookmark), label: 'Bookmark'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
         ],
         backgroundColor: Colors.blue[50],
