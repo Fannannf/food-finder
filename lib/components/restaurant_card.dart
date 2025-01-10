@@ -1,8 +1,9 @@
-// lib/widgets/restaurant_card.dart
 import 'package:flutter/material.dart';
+import 'package:food_finder/helpers/api_services.dart';
 import 'package:food_finder/helpers/variables.dart';
+import 'package:food_finder/models/bookmarks_models.dart';
 import 'package:food_finder/models/dummy_data.dart';
-import 'package:food_finder/models/rating.dart';
+// import 'package:food_finder/services/api_services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/menu.dart';
@@ -11,14 +12,70 @@ import '../pages/resto_detail_page.dart';
 
 class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
+  final int userId; // Tambahkan userId sebagai parameter
 
   final List<Menu> menus = dummyMenus;
 
-  RestaurantCard({required this.restaurant});
+  RestaurantCard({required this.restaurant, required this.userId});
 
   Future<void> _makePhoneCall(String phoneNumber) async {
     final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
     await launchUrl(launchUri);
+  }
+
+  void _showBookmarkDialog(BuildContext context) {
+    final apiServices = APIServices();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text('Konfirmasi Bookmark'),
+          content: Text(
+              'Apakah Anda yakin ingin menambahkan restoran ini ke bookmark?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext); // Tutup dialog
+              },
+              child: Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(dialogContext); // Tutup dialog
+
+                try {
+                  // Panggil fungsi addBookmark
+                  await apiServices.addBookmark(
+                    Bookmark(
+                      userId: userId,
+                      restaurantId: restaurant.id,
+                    ),
+                  );
+
+                  // Tampilkan snackbar sukses
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Bookmark berhasil ditambahkan!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } catch (e) {
+                  // Tampilkan snackbar error
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Gagal menambahkan bookmark: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: Text('Ya'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -64,7 +121,7 @@ class RestaurantCard extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: Colors.blue[50], // Warna latar belakang biru muda
+                color: Colors.blue[50],
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(10),
                   bottomRight: Radius.circular(10),
@@ -110,8 +167,7 @@ class RestaurantCard extends StatelessWidget {
                   ),
                   SizedBox(width: 10),
                   ElevatedButton(
-                    onPressed: () =>
-                        _makePhoneCall(restaurant.phone ?? ''), //ganti
+                    onPressed: () => _showBookmarkDialog(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
