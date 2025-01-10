@@ -12,11 +12,11 @@ import '../pages/resto_detail_page.dart';
 
 class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
-  final int userId; // Tambahkan userId sebagai parameter
+  // final int userId; // Tambahkan userId sebagai parameter
 
   final List<Menu> menus = dummyMenus;
 
-  RestaurantCard({required this.restaurant, required this.userId});
+  RestaurantCard({required this.restaurant});
 
   Future<void> _makePhoneCall(String phoneNumber) async {
     final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
@@ -48,7 +48,7 @@ class RestaurantCard extends StatelessWidget {
                   // Panggil fungsi addBookmark
                   await apiServices.addBookmark(
                     Bookmark(
-                      userId: userId,
+                      userId: restaurant.owner ?? 0,
                       restaurantId: restaurant.id,
                     ),
                   );

@@ -2,6 +2,7 @@
 class Restaurant {
   late int id;
   final String name;
+  final int? owner;
   final String? description;
   final String? address;
   final String? phone;
@@ -10,23 +11,24 @@ class Restaurant {
   final double? longitude;
   final String? image;
 
-
-  Restaurant(
-      {this.id = 0,
-      required this.name,
-      this.description,
-      this.address,
-      this.phone,
-      this.website,
-      this.latitude,
-      this.longitude,
-      this.image,
-     });
+  Restaurant({
+    this.id = 0,
+    required this.name,
+    this.owner,
+    this.description,
+    this.address,
+    this.phone,
+    this.website,
+    this.latitude,
+    this.longitude,
+    this.image,
+  });
 
   factory Restaurant.fromJson(Map<String, dynamic> json) {
     return Restaurant(
       id: json['id'],
       name: json['name'],
+      owner: json['owner'],
       description: json['description'],
       address: json['address'],
       phone: json['phone'],
@@ -34,13 +36,13 @@ class Restaurant {
       latitude: json['lattitude'],
       longitude: json['longitude'],
       image: json['image'],
-      
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': this.id,
+      'owner': this.owner,
       'name': this.name,
       'address': this.address,
       'description': this.description,

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:food_finder/components/restaurant_card.dart';
 import 'package:food_finder/helpers/api_services.dart';
+import 'package:food_finder/models/user_models.dart';
 
 import '../models/restaurant.dart';
 
@@ -15,6 +16,8 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   List<Restaurant> _restaurants = [];
   List<Restaurant> _filteredRestaurants = [];
+  // List<User> _filteredUserId = [];
+
   APIServices api = APIServices();
 
   Future<void> getResto() async {
@@ -71,7 +74,7 @@ class _DashboardPageState extends State<DashboardPage> {
             itemCount: _filteredRestaurants.length,
             itemBuilder: (context, index) {
               final restaurant = _filteredRestaurants[index];
-            
+              // final userId = _filteredUserId[index];
               return RestaurantCard(restaurant: restaurant);
             },
           ),
