@@ -97,9 +97,10 @@ class APIServices {
     final response = await driver.delete('/menu/$menuId');
   }
 
-  Future<Rating> getRating(int menuId) async {
-    final response = await driver.get('/resto/$menuId/rating');
-    return jsonDecode(response.body);
+  Future<List<Rating>> getRating(int menuId) async {
+    final response = await driver.get('/menu/$menuId/rating');
+    List<dynamic> listRatingJson = jsonDecode(response.body);
+    return listRatingJson.map((value) => Rating.fromJson(value)).toList();
   }
 
   Future<List<Review>> getReview(int restoId) async {
@@ -135,6 +136,12 @@ class APIServices {
       print('Review successfully deleted');
     } else {
       throw Exception('Failed to delete review');
+    }
+
+    Future<Rating> addRating(int id, Map<String, dynamic> rating) async {
+      final response = await driver.post("/menu/${id}/rating", rating);
+      final savedRating = Rating.fromJson(jsonDecode(response.body));
+      return savedRating;
     }
   }
 }

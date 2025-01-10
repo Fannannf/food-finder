@@ -4,6 +4,7 @@ import 'package:food_finder/components/widgets.dart';
 import 'package:food_finder/helpers/variables.dart';
 import 'package:food_finder/models/rating.dart';
 import 'package:food_finder/models/restaurant.dart';
+import 'package:food_finder/pages/menu_detail_page.dart';
 
 import '../helpers/api_services.dart';
 import '../models/menu.dart';
@@ -13,6 +14,7 @@ class MenuListTab extends StatefulWidget {
   final Restaurant? resto;
   final bool canAddMenu;
   final Rating? ulasan;
+
   List<Menu> menus = [];
   final Function(Menu) onMenuAdded;
 
@@ -29,6 +31,13 @@ class MenuListTab extends StatefulWidget {
 
 class _MenuListTabState extends State<MenuListTab> {
   APIServices api = APIServices();
+  Map<int, int> _ratings = {};
+
+  void _setRating(int index, int rating) {
+    setState(() {
+      _ratings[index] = rating;
+    });
+  }
 
   void getMenu() async {
     if (widget.resto != null && widget.resto!.id > 0) {
@@ -42,7 +51,6 @@ class _MenuListTabState extends State<MenuListTab> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getMenu();
   }
@@ -106,85 +114,83 @@ class _MenuListTabState extends State<MenuListTab> {
               itemCount: widget.menus.length,
               itemBuilder: (context, index) {
                 final menu = widget.menus[index];
-                return Card(
-                  margin: EdgeInsets.all(10),
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                final currentRating = _ratings[index] ?? 0;
+                return GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MenuDetailPage(
+                        menu: menu,
+                      ),
+                    ),
                   ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ClipRRect(
-                          child: menu.image == null
-                              ? Image.asset(
-                                  'assets/images/menu_default.png',
-                                  width: 80,
-                                  height: 80,
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.network(
-                                  Variables.url + menu.image!,
-                                  width: 80,
-                                  height: 80,
-                                  fit: BoxFit.cover,
-                                ),
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                menu.name,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue[900],
-                                ),
-                              ),
-                              SizedBox(height: 5),
-                              Text(
-                                menu.description ?? '',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.blue[900],
-                                ),
-                              ),
-                              SizedBox(height: 5),
-                              Text(
-                                'Price: Rp ${menu.price.toStringAsFixed(0)}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue[900],
-                                ),
-                              ),
-                              Row(
-                                children: List.generate(
-                                  5,
-                                  (index) => Icon(
-                                    Icons.star,
-                                    color: widget.ulasan != null &&
-                                            index < widget.ulasan!.rating
-                                        ? Colors.orange
-                                        : Colors.grey,
+                  child: Card(
+                    margin: EdgeInsets.all(10),
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ClipRRect(
+                            child: menu.image == null
+                                ? Image.asset(
+                                    'assets/images/menu_default.png',
+                                    width: 80,
+                                    height: 80,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.network(
+                                    Variables.url + menu.image!,
+                                    width: 80,
+                                    height: 80,
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  menu.name,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue[900],
                                   ),
                                 ),
-                              ),
-                             
-                            ],
+                                SizedBox(height: 5),
+                                Text(
+                                  menu.description ?? '',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.blue[900],
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                  'Price: Rp ${menu.price.toStringAsFixed(0)}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue[900],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        if (widget.canAddMenu)
-                          IconButton(
-                            icon: Icon(Icons.delete, color: Colors.redAccent),
-                            onPressed: () => _deleteMenu(menu),
-                          ),
-                      ],
+                          if (widget.canAddMenu)
+                            IconButton(
+                              icon: Icon(Icons.delete, color: Colors.redAccent),
+                              onPressed: () => _deleteMenu(menu),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 );
