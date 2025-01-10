@@ -1,7 +1,9 @@
 // lib/pages/restaurant_detail_page.dart
 import 'package:flutter/material.dart';
+
 import 'package:food_finder/components/styles.dart';
 import 'package:food_finder/helpers/variables.dart';
+import 'package:food_finder/models/review.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../components/menu_list_tab.dart';
@@ -10,9 +12,12 @@ import '../models/restaurant.dart';
 
 class RestaurantDetailPage extends StatefulWidget {
   final Restaurant restaurant;
+  final Review? ulasan;
+  List<Review> review = [];
   List<Menu> menus = [];
 
-  RestaurantDetailPage({required this.restaurant, required this.menus});
+  RestaurantDetailPage(
+      {required this.restaurant, required this.menus, this.ulasan});
 
   @override
   _RestaurantDetailPageState createState() => _RestaurantDetailPageState();
@@ -68,7 +73,13 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
           bottom: const TabBar(
               labelColor: Colors.white,
               unselectedLabelColor: Colors.white54,
-              tabs: [Tab(text: 'Menu'), Tab(text: 'Info')]),
+              tabs: [
+                Tab(text: 'Menu'),
+                Tab(text: 'Info'),
+                Tab(
+                  text: 'Ulasan',
+                )
+              ]),
         ),
         body: Column(
           children: [
@@ -202,6 +213,67 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                           const SizedBox(height: 100)
                         ],
                       ),
+                    ),
+                  ),
+                  // Tab Ulasan
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: SingleChildScrollView(
+                      child: widget.review.isNotEmpty
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: widget.review.map((review) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 16.0),
+                                  child: Card(
+                                    elevation: 2,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            review.user.username ?? 'Anonymous',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue[900],
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            review.review ?? '',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.blue[900],
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            'Rating: ${review.rating ?? 0}/5',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue[900],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            )
+                          : Center(
+                              child: Text(
+                                'Belum ada ulasan.',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.blue[900],
+                                ),
+                              ),
+                            ),
                     ),
                   ),
                 ],

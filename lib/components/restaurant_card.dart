@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:food_finder/helpers/variables.dart';
 import 'package:food_finder/models/dummy_data.dart';
+import 'package:food_finder/models/rating.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/menu.dart';
@@ -10,6 +11,7 @@ import '../pages/resto_detail_page.dart';
 
 class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
+
   final List<Menu> menus = dummyMenus;
 
   RestaurantCard({required this.restaurant});
@@ -76,7 +78,7 @@ class RestaurantCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          restaurant.name,
+                          restaurant.name ?? '',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -92,6 +94,7 @@ class RestaurantCard extends StatelessWidget {
                             color: Colors.blue[900],
                           ),
                         ),
+                       
                       ],
                     ),
                   ),

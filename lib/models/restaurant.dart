@@ -10,6 +10,7 @@ class Restaurant {
   final double? longitude;
   final String? image;
 
+
   Restaurant(
       {this.id = 0,
       required this.name,
@@ -19,7 +20,8 @@ class Restaurant {
       this.website,
       this.latitude,
       this.longitude,
-      this.image});
+      this.image,
+     });
 
   factory Restaurant.fromJson(Map<String, dynamic> json) {
     return Restaurant(
@@ -32,6 +34,7 @@ class Restaurant {
       latitude: json['lattitude'],
       longitude: json['longitude'],
       image: json['image'],
+      
     );
   }
 
