@@ -253,7 +253,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: Text(
@@ -524,6 +524,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
               child: Align(
                 alignment: Alignment.bottomRight,
                 child: FloatingActionButton(
+                  heroTag: "Add Ulasan",
                   onPressed: _addReview,
                   child: Icon(Icons.rate_review, color: Colors.white),
                   backgroundColor: Colors.blue[900],
