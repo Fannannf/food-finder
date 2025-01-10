@@ -98,9 +98,10 @@ class APIServices {
     final response = await driver.delete('/menu/$menuId');
   }
 
-  Future<Rating> getRating(int menuId) async {
-    final response = await driver.get('/resto/$menuId/rating');
-    return jsonDecode(response.body);
+  Future<List<Rating>> getRating(int menuId) async {
+    final response = await driver.get('/menu/$menuId/rating');
+    List<dynamic> listRatingJson = jsonDecode(response.body);
+    return listRatingJson.map((value) => Rating.fromJson(value)).toList();
   }
 
   Future<List<Review>> getReview(int restoId) async {
@@ -129,5 +130,41 @@ class APIServices {
     } else {
       throw Exception('Failed to fetch bookmarks: ${response.body}');
     }
+  }
+
+  Future<Map<String, dynamic>> addReview(
+      Map<String, dynamic> reviewData) async {
+    final response = await driver.post(
+        '/resto/${reviewData['restaurant_id']}/review', reviewData);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to add review');
+    }
+  }
+
+  Future<Map<String, dynamic>> editReview(
+      int reviewId, Map<String, dynamic> reviewData) async {
+    final response = await driver.put('/review/$reviewId', reviewData);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to edit review');
+    }
+  }
+
+  Future<void> deleteReview(int reviewId) async {
+    final response = await driver.delete('/review/$reviewId');
+    if (response.statusCode == 204) {
+      print('Review successfully deleted');
+    } else {
+      throw Exception('Failed to delete review');
+    }
+  }
+
+  Future<Rating> addRating(int id, Map<String, dynamic> rating) async {
+    final response = await driver.post("/menu/${id}/rating", rating);
+    final savedRating = Rating.fromJson(jsonDecode(response.body));
+    return savedRating;
   }
 }

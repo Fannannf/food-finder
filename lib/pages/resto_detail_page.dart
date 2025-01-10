@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:food_finder/components/styles.dart';
+import 'package:food_finder/helpers/api_services.dart';
 import 'package:food_finder/helpers/variables.dart';
 import 'package:food_finder/models/review.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,6 +25,42 @@ class RestaurantDetailPage extends StatefulWidget {
 }
 
 class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
+  @override
+  void initState() {
+    super.initState();
+    _fetchReviews();
+  }
+
+  Future<void> _fetchReviews() async {
+    try {
+      final reviews = await APIServices().getReview(widget.restaurant.id);
+      setState(() {
+        widget.review = reviews;
+      });
+    } catch (e) {
+      print('Error fetching reviews: $e');
+    }
+  }
+
+  Future<void> _deleteReview(int reviewId) async {
+    try {
+      await APIServices().deleteReview(reviewId);
+
+      setState(() {
+        widget.review.removeWhere((review) => review.id == reviewId);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ulasan berhasil dihapus.')),
+      );
+    } catch (e) {
+      print('Error deleting review: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menghapus ulasan.')),
+      );
+    }
+  }
+
   void _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -59,10 +96,164 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     _launchInBrowser(googleMapUrl);
   }
 
+  void _addReview() {
+    final TextEditingController commentController = TextEditingController();
+    final TextEditingController ratingController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Tambah Ulasan'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: commentController,
+              decoration: const InputDecoration(hintText: 'Masukkan ulasan'),
+            ),
+            TextField(
+              controller: ratingController,
+              decoration:
+                  const InputDecoration(hintText: 'Masukkan rating (1-5)'),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final String comment = commentController.text;
+              final int? rating = int.tryParse(ratingController.text);
+
+              if (comment.isNotEmpty &&
+                  rating != null &&
+                  rating > 0 &&
+                  rating <= 5) {
+                try {
+                  // Fetch user profile to get user_id
+                  final profile = await APIServices().getProfile();
+                  final int userId = profile['id'];
+
+                  final Map<String, dynamic> reviewData = {
+                    "restaurant_id": widget.restaurant.id,
+                    "user_id": userId,
+                    "rating": rating,
+                    "comment": comment,
+                  };
+
+                  await APIServices().addReview(reviewData);
+                  await _fetchReviews(); // Refresh reviews after adding
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Ulasan berhasil ditambahkan.')),
+                  );
+                } catch (e) {
+                  // Handle error
+                  print('Error adding review: $e');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Gagal menambahkan ulasan.')),
+                  );
+                }
+              } else {
+                // Show validation error
+                print('Invalid input');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Input tidak valid.')),
+                );
+              }
+            },
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _editReview(Review review) {
+    final TextEditingController commentController =
+        TextEditingController(text: review.comment);
+    final TextEditingController ratingController =
+        TextEditingController(text: review.rating.toString());
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Ulasan'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: commentController,
+              decoration: const InputDecoration(hintText: 'Masukkan ulasan'),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: ratingController,
+              decoration:
+                  const InputDecoration(hintText: 'Masukkan rating (1-5)'),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final String updatedComment = commentController.text;
+              final int? updatedRating = int.tryParse(ratingController.text);
+
+              if (updatedComment.isNotEmpty &&
+                  updatedRating != null &&
+                  updatedRating > 0 &&
+                  updatedRating <= 5) {
+                try {
+                  final profile = await APIServices().getProfile();
+                  final int userId = profile['id'];
+
+                  final Map<String, dynamic> updatedReviewData = {
+                    "restaurant_id": widget.restaurant.id,
+                    "user_id": userId,
+                    "rating": updatedRating,
+                    "comment": updatedComment,
+                  };
+
+                  await APIServices().editReview(review.id, updatedReviewData);
+                  await _fetchReviews(); // Refresh reviews after editing
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Ulasan berhasil diedit.')),
+                  );
+                } catch (e) {
+                  print('Error editing review: $e');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Gagal mengedit ulasan.')),
+                  );
+                }
+              } else {
+                print('Invalid input');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Input tidak valid.')),
+                );
+              }
+            },
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: Text(
@@ -225,40 +416,74 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                               children: widget.review.map((review) {
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 16.0),
-                                  child: Card(
-                                    elevation: 2,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            review.user.username ?? 'Anonymous',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blue[900],
+                                  child: GestureDetector(
+                                    onLongPress: () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              ListTile(
+                                                leading: Icon(Icons.edit,
+                                                    color: Colors.blue[900]),
+                                                title: Text('Edit Ulasan'),
+                                                onTap: () {
+                                                  Navigator.pop(context);
+                                                  _editReview(review);
+                                                },
+                                              ),
+                                              ListTile(
+                                                leading: Icon(Icons.delete,
+                                                    color: Colors.red),
+                                                title: Text('Hapus Ulasan'),
+                                                onTap: () async {
+                                                  Navigator.pop(context);
+                                                  await _deleteReview(
+                                                      review.id);
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Card(
+                                      elevation: 2,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              review.user.username ??
+                                                  'Anonymous',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.blue[900],
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            review.review ?? '',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.blue[900],
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              review.comment ?? '',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.blue[900],
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            'Rating: ${review.rating ?? 0}/5',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blue[900],
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              'Rating: ${review.rating ?? 0}/5',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.blue[900],
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -281,13 +506,32 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _openGoogleMaps(
-            widget.restaurant.latitude ?? 0,
-            widget.restaurant.longitude ?? 0,
-          ),
-          child: Icon(Icons.map, color: Colors.white),
-          backgroundColor: Colors.blue[900],
+        floatingActionButton: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomRight,
+              child: FloatingActionButton(
+                onPressed: () => _openGoogleMaps(
+                  widget.restaurant.latitude ?? 0,
+                  widget.restaurant.longitude ?? 0,
+                ),
+                child: Icon(Icons.map, color: Colors.white),
+                backgroundColor: Colors.blue[900],
+              ),
+            ), // Index tab ulasan
+            Padding(
+              padding: const EdgeInsets.only(bottom: 70.0),
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: FloatingActionButton(
+                  heroTag: "Add Ulasan",
+                  onPressed: _addReview,
+                  child: Icon(Icons.rate_review, color: Colors.white),
+                  backgroundColor: Colors.blue[900],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
