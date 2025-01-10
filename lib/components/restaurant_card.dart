@@ -94,7 +94,6 @@ class RestaurantCard extends StatelessWidget {
                             color: Colors.blue[900],
                           ),
                         ),
-                       
                       ],
                     ),
                   ),
@@ -108,6 +107,18 @@ class RestaurantCard extends StatelessWidget {
                       ),
                     ),
                     child: Icon(Icons.phone, color: Colors.white),
+                  ),
+                  SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () =>
+                        _makePhoneCall(restaurant.phone ?? ''), //ganti
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Icon(Icons.bookmark, color: Colors.blue),
                   ),
                 ],
               ),
