@@ -101,10 +101,21 @@ class APIServices {
     final response = await driver.get('/resto/$menuId/rating');
     return jsonDecode(response.body);
   }
+
   Future<List<Review>> getReview(int restoId) async {
     final response = await driver.get('/resto/$restoId/review');
     List<dynamic> listReviewJson = jsonDecode(response.body);
     return listReviewJson.map((value) => Review.fromJson(value)).toList();
   }
-  
+
+  Future<Map<String, dynamic>> addReview(
+      Map<String, dynamic> reviewData) async {
+    final response = await driver.post(
+        '/resto/${reviewData['restaurant_id']}/review', reviewData);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to add review');
+    }
+  }
 }

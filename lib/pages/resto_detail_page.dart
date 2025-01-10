@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:food_finder/components/styles.dart';
+import 'package:food_finder/helpers/api_services.dart';
 import 'package:food_finder/helpers/variables.dart';
 import 'package:food_finder/models/review.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,6 +25,23 @@ class RestaurantDetailPage extends StatefulWidget {
 }
 
 class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
+  @override
+  void initState() {
+    super.initState();
+    _fetchReviews();
+  }
+
+  Future<void> _fetchReviews() async {
+    try {
+      final reviews = await APIServices().getReview(widget.restaurant.id);
+      setState(() {
+        widget.review = reviews;
+      });
+    } catch (e) {
+      print('Error fetching reviews: $e');
+    }
+  }
+
   void _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -57,6 +75,74 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     );
 
     _launchInBrowser(googleMapUrl);
+  }
+
+  void _addReview() {
+    final TextEditingController commentController = TextEditingController();
+    final TextEditingController ratingController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Tambah Ulasan'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: commentController,
+              decoration: const InputDecoration(hintText: 'Masukkan ulasan'),
+            ),
+            TextField(
+              controller: ratingController,
+              decoration:
+                  const InputDecoration(hintText: 'Masukkan rating (1-5)'),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final String comment = commentController.text;
+              final int? rating = int.tryParse(ratingController.text);
+
+              if (comment.isNotEmpty &&
+                  rating != null &&
+                  rating > 0 &&
+                  rating <= 5) {
+                try {
+                  // Fetch user profile to get user_id
+                  final profile = await APIServices().getProfile();
+                  final int userId = profile['id'];
+
+                  final Map<String, dynamic> reviewData = {
+                    "restaurant_id": widget.restaurant.id,
+                    "user_id": userId,
+                    "rating": rating,
+                    "comment": comment,
+                  };
+
+                  await APIServices().addReview(reviewData);
+                  await _fetchReviews(); // Refresh reviews after adding
+                  Navigator.pop(context);
+                } catch (e) {
+                  // Handle error
+                  print('Error adding review: $e');
+                }
+              } else {
+                // Show validation error
+                print('Invalid input');
+              }
+            },
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -243,7 +329,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                                           ),
                                           const SizedBox(height: 8),
                                           Text(
-                                            review.review ?? '',
+                                            review.comment ?? '',
                                             style: TextStyle(
                                               fontSize: 14,
                                               color: Colors.blue[900],
@@ -281,13 +367,31 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _openGoogleMaps(
-            widget.restaurant.latitude ?? 0,
-            widget.restaurant.longitude ?? 0,
-          ),
-          child: Icon(Icons.map, color: Colors.white),
-          backgroundColor: Colors.blue[900],
+        floatingActionButton: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomRight,
+              child: FloatingActionButton(
+                onPressed: () => _openGoogleMaps(
+                  widget.restaurant.latitude ?? 0,
+                  widget.restaurant.longitude ?? 0,
+                ),
+                child: Icon(Icons.map, color: Colors.white),
+                backgroundColor: Colors.blue[900],
+              ),
+            ), // Index tab ulasan
+            Padding(
+              padding: const EdgeInsets.only(bottom: 70.0),
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: FloatingActionButton(
+                  onPressed: _addReview,
+                  child: Icon(Icons.rate_review, color: Colors.white),
+                  backgroundColor: Colors.blue[900],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
