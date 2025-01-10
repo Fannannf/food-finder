@@ -137,11 +137,11 @@ class APIServices {
     } else {
       throw Exception('Failed to delete review');
     }
+  }
 
-    Future<Rating> addRating(int id, Map<String, dynamic> rating) async {
-      final response = await driver.post("/menu/${id}/rating", rating);
-      final savedRating = Rating.fromJson(jsonDecode(response.body));
-      return savedRating;
-    }
+  Future<Rating> addRating(int id, Map<String, dynamic> rating) async {
+    final response = await driver.post("/menu/${id}/rating", rating);
+    final savedRating = Rating.fromJson(jsonDecode(response.body));
+    return savedRating;
   }
 }
