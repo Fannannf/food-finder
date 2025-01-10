@@ -118,4 +118,23 @@ class APIServices {
       throw Exception('Failed to add review');
     }
   }
+
+  Future<Map<String, dynamic>> editReview(
+      int reviewId, Map<String, dynamic> reviewData) async {
+    final response = await driver.put('/review/$reviewId', reviewData);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to edit review');
+    }
+  }
+
+  Future<void> deleteReview(int reviewId) async {
+    final response = await driver.delete('/review/$reviewId');
+    if (response.statusCode == 204) {
+      print('Review successfully deleted');
+    } else {
+      throw Exception('Failed to delete review');
+    }
+  }
 }
