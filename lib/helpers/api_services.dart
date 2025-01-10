@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:food_finder/helpers/api_driver.dart';
 import 'package:food_finder/models/menu.dart';
+import 'package:food_finder/models/rating.dart';
 import 'package:food_finder/models/restaurant.dart';
+import 'package:food_finder/models/review.dart';
 
 class APIServices {
   APIDriver driver = APIDriver();
@@ -94,4 +96,15 @@ class APIServices {
   Future<void> delMenu(int menuId) async {
     final response = await driver.delete('/menu/$menuId');
   }
+
+  Future<Rating> getRating(int menuId) async {
+    final response = await driver.get('/resto/$menuId/rating');
+    return jsonDecode(response.body);
+  }
+  Future<List<Review>> getReview(int restoId) async {
+    final response = await driver.get('/resto/$restoId/review');
+    List<dynamic> listReviewJson = jsonDecode(response.body);
+    return listReviewJson.map((value) => Review.fromJson(value)).toList();
+  }
+  
 }

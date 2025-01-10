@@ -71,6 +71,7 @@ class _DashboardPageState extends State<DashboardPage> {
             itemCount: _filteredRestaurants.length,
             itemBuilder: (context, index) {
               final restaurant = _filteredRestaurants[index];
+            
               return RestaurantCard(restaurant: restaurant);
             },
           ),

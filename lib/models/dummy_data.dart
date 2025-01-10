@@ -12,6 +12,7 @@ List<Restaurant> dummyRestaurants = [
     latitude: -6.2088,
     longitude: 106.8456,
     image: 'assets/images/resto_default.png',
+    
     // image: 'https://via.placeholder.com/150',
   ),
   Restaurant(

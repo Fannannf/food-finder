@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:food_finder/components/widgets.dart';
 import 'package:food_finder/helpers/variables.dart';
+import 'package:food_finder/models/rating.dart';
 import 'package:food_finder/models/restaurant.dart';
 
 import '../helpers/api_services.dart';
@@ -11,6 +12,7 @@ import '../pages/menu_form_page.dart';
 class MenuListTab extends StatefulWidget {
   final Restaurant? resto;
   final bool canAddMenu;
+  final Rating? ulasan;
   List<Menu> menus = [];
   final Function(Menu) onMenuAdded;
 
@@ -18,7 +20,8 @@ class MenuListTab extends StatefulWidget {
       {super.key,
       this.resto,
       required this.onMenuAdded,
-      this.canAddMenu = false});
+      this.canAddMenu = false,
+      this.ulasan});
 
   @override
   State<MenuListTab> createState() => _MenuListTabState();
@@ -160,6 +163,19 @@ class _MenuListTabState extends State<MenuListTab> {
                                   color: Colors.blue[900],
                                 ),
                               ),
+                              Row(
+                                children: List.generate(
+                                  5,
+                                  (index) => Icon(
+                                    Icons.star,
+                                    color: widget.ulasan != null &&
+                                            index < widget.ulasan!.rating
+                                        ? Colors.orange
+                                        : Colors.grey,
+                                  ),
+                                ),
+                              ),
+                             
                             ],
                           ),
                         ),

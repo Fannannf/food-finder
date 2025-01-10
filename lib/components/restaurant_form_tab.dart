@@ -77,7 +77,8 @@ class _RestaurantFormTabState extends State<RestaurantFormTab> {
         phone: widget.phoneController.text,
         website: widget.websiteController.text,
         latitude: latitude,
-        longitude: longitude);
+        longitude: longitude
+        );
 
     Restaurant resResto;
     if (widget.resto == null) {
