@@ -547,34 +547,46 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                       children: [
                         Expanded(
                             child: widget.review.isNotEmpty
-                                ? Column(
-                                    children: widget.review.map(
-                                    (review) {
-                                      return GestureDetector(
-                                        onTap: () {
-                                          if (review.user.id == userId) {
-                                            _editReview(review);
-                                          }
-                                        },
-                                        child: ListTile(
-                                          leading: Icon(Icons.person),
-                                          title: Text(review.user.username),
-                                          subtitle: Text(review.comment),
-                                          trailing: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text(
-                                                review.rating.toString(),
-                                                style: TextStyle(fontSize: 18),
+                                ? SingleChildScrollView(
+                                    child: Column(
+                                        children: widget.review.map(
+                                      (review) {
+                                        return GestureDetector(
+                                            onTap: () {
+                                              if (review.user.id == userId) {
+                                                _editReview(review);
+                                              }
+                                            },
+                                            child: Card(
+                                              elevation:
+                                                  4, // Memberikan efek shadow dengan ketinggian 4
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(
+                                                    10), // Membuat sudut membulat
                                               ),
-                                              SizedBox(width: 5),
-                                              Icon(Icons.star)
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ).toList())
+                                              child: ListTile(
+                                                leading: Icon(Icons.person),
+                                                title:
+                                                    Text(review.user.username),
+                                                subtitle: Text(review.comment),
+                                                trailing: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      review.rating.toString(),
+                                                      style: TextStyle(
+                                                          fontSize: 18),
+                                                    ),
+                                                    SizedBox(width: 5),
+                                                    Icon(Icons.star)
+                                                  ],
+                                                ),
+                                              ),
+                                            ));
+                                      },
+                                    ).toList()),
+                                  )
                                 : Center(
                                     child: Text("Belum ada review"),
                                   )),

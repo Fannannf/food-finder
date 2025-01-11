@@ -119,20 +119,28 @@ class _ProfileRestaurantPageState extends State<ProfileRestaurantPage> {
                         ? Column(
                             children: widget.review.map(
                             (review) {
-                              return ListTile(
-                                leading: Icon(Icons.person),
-                                title: Text(review.user.username),
-                                subtitle: Text(review.comment),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      review.rating.toString(),
-                                      style: TextStyle(fontSize: 18),
-                                    ),
-                                    SizedBox(width: 5),
-                                    Icon(Icons.star)
-                                  ],
+                              return Card(
+                                elevation:
+                                    4, // Memberikan efek shadow dengan ketinggian 4
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      10), // Membuat sudut membulat
+                                ),
+                                child: ListTile(
+                                  leading: Icon(Icons.person),
+                                  title: Text(review.user.username),
+                                  subtitle: Text(review.comment),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        review.rating.toString(),
+                                        style: TextStyle(fontSize: 18),
+                                      ),
+                                      SizedBox(width: 5),
+                                      Icon(Icons.star)
+                                    ],
+                                  ),
                                 ),
                               );
                             },
