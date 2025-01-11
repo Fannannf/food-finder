@@ -26,10 +26,12 @@ class RestaurantDetailPage extends StatefulWidget {
 }
 
 class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
+  int userId = 0;
   @override
   void initState() {
     super.initState();
     _fetchReviews();
+    getProfile();
   }
 
   Future<void> _fetchReviews() async {
@@ -41,6 +43,13 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     } catch (e) {
       print('Error fetching reviews: $e');
     }
+  }
+
+  void getProfile() async {
+    final profile = await APIServices().getProfile();
+    setState(() {
+      userId = profile['id'];
+    });
   }
 
   Future<void> _deleteReview(int reviewId) async {
@@ -237,51 +246,106 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final String updatedComment = commentController.text;
-              final int? updatedRating = int.tryParse(ratingController.text);
+          Container(
+            height: 170,
+            width: double.infinity,
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text("Batal",
+                        style: TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final String updatedComment = commentController.text;
+                      final int? updatedRating =
+                          int.tryParse(ratingController.text);
 
-              if (updatedComment.isNotEmpty &&
-                  updatedRating != null &&
-                  updatedRating > 0 &&
-                  updatedRating <= 5) {
-                try {
-                  final profile = await APIServices().getProfile();
-                  final int userId = profile['id'];
+                      if (updatedComment.isNotEmpty &&
+                          updatedRating != null &&
+                          updatedRating > 0 &&
+                          updatedRating <= 5) {
+                        try {
+                          final profile = await APIServices().getProfile();
+                          final int userId = profile['id'];
 
-                  final Map<String, dynamic> updatedReviewData = {
-                    "restaurant_id": widget.restaurant.id,
-                    "user_id": userId,
-                    "rating": updatedRating,
-                    "comment": updatedComment,
-                  };
+                          final Map<String, dynamic> updatedReviewData = {
+                            "restaurant_id": widget.restaurant.id,
+                            "user_id": userId,
+                            "rating": updatedRating,
+                            "comment": updatedComment,
+                          };
 
-                  await APIServices().editReview(review.id, updatedReviewData);
-                  await _fetchReviews(); // Refresh reviews after editing
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Review berhasil diedit.')),
-                  );
-                } catch (e) {
-                  print('Error editing review: $e');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Gagal mengedit review.')),
-                  );
-                }
-              } else {
-                print('Invalid input');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Input tidak valid.')),
-                );
-              }
-            },
-            child: const Text('Simpan'),
-          ),
+                          await APIServices()
+                              .editReview(review.id, updatedReviewData);
+                          await _fetchReviews(); // Refresh reviews after editing
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Review berhasil diedit.')),
+                          );
+                        } catch (e) {
+                          print('Error editing review: $e');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Gagal mengedit review.')),
+                          );
+                        }
+                      } else {
+                        print('Invalid input');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Input tidak valid.')),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[900],
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text("Simpan",
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _deleteReview(review.id);
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red[900],
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text("Hapus",
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );
@@ -292,6 +356,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text(
             widget.restaurant.name,
@@ -449,108 +514,38 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                     child: Column(
                       children: [
                         Expanded(
-                          child: SingleChildScrollView(
                             child: widget.review.isNotEmpty
                                 ? Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: widget.review.map((review) {
-                                      return Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 16.0),
-                                        child: GestureDetector(
-                                          onLongPress: () {
-                                            showModalBottomSheet(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    ListTile(
-                                                      leading: Icon(Icons.edit,
-                                                          color:
-                                                              Colors.blue[900]),
-                                                      title:
-                                                          Text('Edit Review'),
-                                                      onTap: () {
-                                                        Navigator.pop(context);
-                                                        _editReview(review);
-                                                      },
-                                                    ),
-                                                    ListTile(
-                                                      leading: Icon(
-                                                          Icons.delete,
-                                                          color: Colors.red),
-                                                      title:
-                                                          Text('Hapus Review'),
-                                                      onTap: () async {
-                                                        Navigator.pop(context);
-                                                        await _deleteReview(
-                                                            review.id);
-                                                      },
-                                                    ),
-                                                  ],
-                                                );
-                                              },
-                                            );
-                                          },
-                                          child: Card(
-                                            elevation: 2,
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(16.0),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    review.user.username ??
-                                                        'Anonymous',
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.blue[900],
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 8),
-                                                  Text(
-                                                    review.comment ?? '',
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: Colors.blue[900],
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 8),
-                                                  Text(
-                                                    'Rating: ${review.rating ?? 0}/5',
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.blue[900],
-                                                    ),
-                                                  ),
-                                                ],
+                                    children: widget.review.map(
+                                    (review) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          if (review.user.id == userId) {
+                                            _editReview(review);
+                                          }
+                                        },
+                                        child: ListTile(
+                                          leading: Icon(Icons.person),
+                                          title: Text(review.user.username),
+                                          subtitle: Text(review.comment),
+                                          trailing: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                review.rating.toString(),
+                                                style: TextStyle(fontSize: 18),
                                               ),
-                                            ),
+                                              SizedBox(width: 5),
+                                              Icon(Icons.star)
+                                            ],
                                           ),
                                         ),
                                       );
-                                    }).toList(),
-                                  )
+                                    },
+                                  ).toList())
                                 : Center(
-                                    child: Text(
-                                      'Belum ada review.',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.blue[900],
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                        ),
+                                    child: Text("Belum ada review"),
+                                  )),
                         BlueButton(
                           text: "Tambah Review",
                           onPressed: () {

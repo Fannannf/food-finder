@@ -30,10 +30,12 @@ class Review {
 
 class User {
   final String username;
-  User({required this.username});
+  int id;
+  User({required this.username, required this.id});
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
+      id: json['id'],
       username: json['username'],
     );
   }
