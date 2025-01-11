@@ -1,8 +1,10 @@
 // lib/pages/profile_restaurant_page.dart
 import 'package:flutter/material.dart';
 import 'package:food_finder/components/styles.dart';
+import 'package:food_finder/helpers/api_services.dart';
 import 'package:food_finder/models/dummy_data.dart';
 import 'package:food_finder/models/restaurant.dart';
+import 'package:food_finder/models/review.dart';
 
 import '../components/menu_list_tab.dart';
 import '../components/restaurant_form_tab.dart';
@@ -12,6 +14,7 @@ import 'menu_form_page.dart';
 
 class ProfileRestaurantPage extends StatefulWidget {
   Restaurant? resto;
+  List<Review> review = [];
   ProfileRestaurantPage({super.key, this.resto});
 
   @override
@@ -43,6 +46,18 @@ class _ProfileRestaurantPageState extends State<ProfileRestaurantPage> {
       _latLongController.text =
           "${(curResto.latitude ?? 0)},${(curResto.longitude ?? 0)}";
     }
+    _fetchReviews();
+  }
+
+  Future<void> _fetchReviews() async {
+    try {
+      final reviews = await APIServices().getReview(widget.resto!.id);
+      setState(() {
+        widget.review = reviews;
+      });
+    } catch (e) {
+      print('Error fetching reviews: $e');
+    }
   }
 
   void _addMenu(Menu menu) {
@@ -54,7 +69,7 @@ class _ProfileRestaurantPageState extends State<ProfileRestaurantPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: Text('Profil Restoran', style: whiteBoldText),
@@ -70,7 +85,13 @@ class _ProfileRestaurantPageState extends State<ProfileRestaurantPage> {
               fontSize: 18,
               color: Colors.white54,
             ),
-            tabs: [Tab(text: 'Profil'), Tab(text: 'Daftar Menu')],
+            tabs: [
+              Tab(text: 'Profil'),
+              Tab(text: 'Daftar Menu'),
+              Tab(
+                text: "Review",
+              )
+            ],
           ),
         ),
         body: TabBarView(
@@ -88,6 +109,40 @@ class _ProfileRestaurantPageState extends State<ProfileRestaurantPage> {
               resto: widget.resto,
               onMenuAdded: _addMenu,
               canAddMenu: true,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: widget.review.isNotEmpty
+                        ? Column(
+                            children: widget.review.map(
+                            (review) {
+                              return ListTile(
+                                leading: Icon(Icons.person),
+                                title: Text(review.user.username),
+                                subtitle: Text(review.comment),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      review.rating.toString(),
+                                      style: TextStyle(fontSize: 18),
+                                    ),
+                                    SizedBox(width: 5),
+                                    Icon(Icons.star)
+                                  ],
+                                ),
+                              );
+                            },
+                          ).toList())
+                        : Center(
+                            child: Text("Belum ada review"),
+                          ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

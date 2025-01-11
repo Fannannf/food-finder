@@ -144,54 +144,87 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final String comment = commentController.text;
-              final int? rating = int.tryParse(ratingController.text);
+          Container(
+            height: 120,
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text("Batal",
+                        style: TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final String comment = commentController.text;
+                      final int? rating = int.tryParse(ratingController.text);
 
-              if (comment.isNotEmpty &&
-                  rating != null &&
-                  rating > 0 &&
-                  rating <= 5) {
-                try {
-                  // Fetch user profile to get user_id
-                  final profile = await APIServices().getProfile();
-                  final int userId = profile['id'];
+                      if (comment.isNotEmpty &&
+                          rating != null &&
+                          rating > 0 &&
+                          rating <= 5) {
+                        try {
+                          // Fetch user profile to get user_id
+                          final profile = await APIServices().getProfile();
+                          final int userId = profile['id'];
 
-                  final Map<String, dynamic> reviewData = {
-                    "restaurant_id": widget.restaurant.id,
-                    "user_id": userId,
-                    "rating": rating,
-                    "comment": comment,
-                  };
+                          final Map<String, dynamic> reviewData = {
+                            "restaurant_id": widget.restaurant.id,
+                            "user_id": userId,
+                            "rating": rating,
+                            "comment": comment,
+                          };
 
-                  await APIServices().addReview(reviewData);
-                  await _fetchReviews(); // Refresh reviews after adding
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Review berhasil ditambahkan.')),
-                  );
-                } catch (e) {
-                  // Handle error
-                  print('Error adding review: $e');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Gagal menambahkan review.')),
-                  );
-                }
-              } else {
-                // Show validation error
-                print('Invalid input');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Input tidak valid.')),
-                );
-              }
-            },
-            child: const Text('Simpan'),
-          ),
+                          await APIServices().addReview(reviewData);
+                          await _fetchReviews(); // Refresh reviews after adding
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Review berhasil ditambahkan.')),
+                          );
+                        } catch (e) {
+                          // Handle error
+                          print('Error adding review: $e');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Gagal menambahkan review.')),
+                          );
+                        }
+                      } else {
+                        // Show validation error
+                        print('Invalid input');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Input tidak valid.')),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[900],
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text("Simpan",
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );
@@ -202,7 +235,6 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
         TextEditingController(text: review.comment);
     final TextEditingController ratingController =
         TextEditingController(text: review.rating.toString());
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
