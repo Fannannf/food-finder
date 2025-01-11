@@ -166,16 +166,16 @@ class RestaurantCard extends StatelessWidget {
                     child: Icon(Icons.phone, color: Colors.white),
                   ),
                   SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () => _showBookmarkDialog(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Icon(Icons.bookmark, color: Colors.blue),
-                  ),
+                  // ElevatedButton(
+                  //   onPressed: () => _showBookmarkDialog(context),
+                  //   style: ElevatedButton.styleFrom(
+                  //     backgroundColor: Colors.white,
+                  //     shape: RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(10),
+                  //     ),
+                  //   ),
+                  //   child: Icon(Icons.bookmark, color: Colors.blue),
+                  // ),
                 ],
               ),
             ),

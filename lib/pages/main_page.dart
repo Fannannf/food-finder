@@ -21,7 +21,6 @@ class _MainPageState extends State<MainPage> {
 
   final List<Widget> _pages = [
     DashboardPage(),
-    BookmarkPage(), // Halaman bookmark ditambahkan di sini
     ProfilePage(),
   ];
 
@@ -64,8 +63,8 @@ class _MainPageState extends State<MainPage> {
         onTap: _onTabTapped,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.bookmark), label: 'Bookmark'),
+          // BottomNavigationBarItem(
+          //     icon: Icon(Icons.bookmark), label: 'Bookmark'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
         ],
         backgroundColor: Colors.blue[50],

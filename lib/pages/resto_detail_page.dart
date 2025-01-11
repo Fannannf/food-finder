@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:food_finder/components/styles.dart';
+import 'package:food_finder/components/widgets.dart';
 import 'package:food_finder/helpers/api_services.dart';
 import 'package:food_finder/helpers/variables.dart';
 import 'package:food_finder/models/review.dart';
@@ -61,15 +62,6 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     }
   }
 
-  void _launchURL(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
   void _makePhoneCall(String phoneNumber) async {
     final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
     await launchUrl(launchUri);
@@ -103,18 +95,41 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Tambah Ulasan'),
+        title: const Text('Tambah Review'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: commentController,
-              decoration: const InputDecoration(hintText: 'Masukkan ulasan'),
+              maxLines: 4,
+              decoration: InputDecoration(
+                labelText: "Komentar",
+                prefixIcon: Icon(Icons.comment),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.blue[900]!),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.blue[900]!),
+                ),
+              ),
             ),
+            const SizedBox(height: 10),
             TextField(
               controller: ratingController,
-              decoration:
-                  const InputDecoration(hintText: 'Masukkan rating (1-5)'),
+              decoration: InputDecoration(
+                labelText: "Rating",
+                prefixIcon: Icon(Icons.star),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.blue[900]!),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.blue[900]!),
+                ),
+              ),
               keyboardType: TextInputType.number,
             ),
           ],
@@ -149,13 +164,13 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                   await _fetchReviews(); // Refresh reviews after adding
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Ulasan berhasil ditambahkan.')),
+                    SnackBar(content: Text('Review berhasil ditambahkan.')),
                   );
                 } catch (e) {
                   // Handle error
                   print('Error adding review: $e');
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Gagal menambahkan ulasan.')),
+                    SnackBar(content: Text('Gagal menambahkan review.')),
                   );
                 }
               } else {
@@ -182,19 +197,41 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Edit Ulasan'),
+        title: const Text('Edit Review'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: commentController,
-              decoration: const InputDecoration(hintText: 'Masukkan ulasan'),
+              maxLines: 4,
+              decoration: InputDecoration(
+                labelText: "Komentar",
+                prefixIcon: Icon(Icons.comment),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.blue[900]!),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.blue[900]!),
+                ),
+              ),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: ratingController,
-              decoration:
-                  const InputDecoration(hintText: 'Masukkan rating (1-5)'),
+              decoration: InputDecoration(
+                labelText: "Rating",
+                prefixIcon: Icon(Icons.star),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.blue[900]!),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.blue[900]!),
+                ),
+              ),
               keyboardType: TextInputType.number,
             ),
           ],
@@ -228,12 +265,12 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                   await _fetchReviews(); // Refresh reviews after editing
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Ulasan berhasil diedit.')),
+                    SnackBar(content: Text('Review berhasil diedit.')),
                   );
                 } catch (e) {
                   print('Error editing review: $e');
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Gagal mengedit ulasan.')),
+                    SnackBar(content: Text('Gagal mengedit review.')),
                   );
                 }
               } else {
@@ -268,7 +305,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                 Tab(text: 'Menu'),
                 Tab(text: 'Info'),
                 Tab(
-                  text: 'Ulasan',
+                  text: 'Review',
                 )
               ]),
         ),
@@ -409,96 +446,118 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                   // Tab Ulasan
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: SingleChildScrollView(
-                      child: widget.review.isNotEmpty
-                          ? Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: widget.review.map((review) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 16.0),
-                                  child: GestureDetector(
-                                    onLongPress: () {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              ListTile(
-                                                leading: Icon(Icons.edit,
-                                                    color: Colors.blue[900]),
-                                                title: Text('Edit Ulasan'),
-                                                onTap: () {
-                                                  Navigator.pop(context);
-                                                  _editReview(review);
-                                                },
-                                              ),
-                                              ListTile(
-                                                leading: Icon(Icons.delete,
-                                                    color: Colors.red),
-                                                title: Text('Hapus Ulasan'),
-                                                onTap: () async {
-                                                  Navigator.pop(context);
-                                                  await _deleteReview(
-                                                      review.id);
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                    },
-                                    child: Card(
-                                      elevation: 2,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              review.user.username ??
-                                                  'Anonymous',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.blue[900],
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: widget.review.isNotEmpty
+                                ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: widget.review.map((review) {
+                                      return Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 16.0),
+                                        child: GestureDetector(
+                                          onLongPress: () {
+                                            showModalBottomSheet(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    ListTile(
+                                                      leading: Icon(Icons.edit,
+                                                          color:
+                                                              Colors.blue[900]),
+                                                      title:
+                                                          Text('Edit Review'),
+                                                      onTap: () {
+                                                        Navigator.pop(context);
+                                                        _editReview(review);
+                                                      },
+                                                    ),
+                                                    ListTile(
+                                                      leading: Icon(
+                                                          Icons.delete,
+                                                          color: Colors.red),
+                                                      title:
+                                                          Text('Hapus Review'),
+                                                      onTap: () async {
+                                                        Navigator.pop(context);
+                                                        await _deleteReview(
+                                                            review.id);
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          },
+                                          child: Card(
+                                            elevation: 2,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(16.0),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    review.user.username ??
+                                                        'Anonymous',
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.blue[900],
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    review.comment ?? '',
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.blue[900],
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    'Rating: ${review.rating ?? 0}/5',
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.blue[900],
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              review.comment ?? '',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.blue[900],
-                                              ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              'Rating: ${review.rating ?? 0}/5',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.blue[900],
-                                              ),
-                                            ),
-                                          ],
+                                          ),
                                         ),
+                                      );
+                                    }).toList(),
+                                  )
+                                : Center(
+                                    child: Text(
+                                      'Belum ada review.',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.blue[900],
                                       ),
                                     ),
                                   ),
-                                );
-                              }).toList(),
-                            )
-                          : Center(
-                              child: Text(
-                                'Belum ada ulasan.',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.blue[900],
-                                ),
-                              ),
-                            ),
+                          ),
+                        ),
+                        BlueButton(
+                          text: "Tambah Review",
+                          onPressed: () {
+                            _addReview();
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -517,18 +576,6 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage> {
                 ),
                 child: Icon(Icons.map, color: Colors.white),
                 backgroundColor: Colors.blue[900],
-              ),
-            ), // Index tab ulasan
-            Padding(
-              padding: const EdgeInsets.only(bottom: 70.0),
-              child: Align(
-                alignment: Alignment.bottomRight,
-                child: FloatingActionButton(
-                  heroTag: "Add Ulasan",
-                  onPressed: _addReview,
-                  child: Icon(Icons.rate_review, color: Colors.white),
-                  backgroundColor: Colors.blue[900],
-                ),
               ),
             ),
           ],
